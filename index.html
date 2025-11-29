@@ -1,0 +1,2293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-X2W323M13Z"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-X2W323M13Z');
+</script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
+    <meta name="description" content="Find the best AI tools for specific tasks based on real user reviews">
+    <meta name="theme-color" content="#6366f1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>AI Tools Rank - Find the Best AI Tool for Your Task</title>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    
+    <!-- DOMPurify for XSS prevention -->
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"></script>
+    
+    <!-- Google reCAPTCHA v2 -->
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        :root {
+            --primary-color: #6366f1;
+            --secondary-color: #4f46e5;
+            --accent-color: #fbbf24;
+            --text-dark: #1f2937;
+            --text-light: #6b7280;
+            --bg-light: #f9fafb;
+            --border-color: #e5e7eb;
+            --success-color: #10b981;
+            --error-color: #ef4444;
+            --warning-color: #f59e0b;
+            --max-width: 1400px;
+            --mobile-padding: 1rem;
+            --desktop-padding: 2rem;
+            --safe-area-inset-top: env(safe-area-inset-top, 0px);
+            --safe-area-inset-bottom: env(safe-area-inset-bottom, 0px);
+            --safe-area-inset-left: env(safe-area-inset-left, 0px);
+            --safe-area-inset-right: env(safe-area-inset-right, 0px);
+            --vh: 1vh;
+        }
+
+        /* FIX #1: Removed position:fixed from html - causes iOS scroll issues */
+        html {
+            height: 100%;
+            overflow-x: hidden;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: var(--text-dark);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            min-height: calc(var(--vh, 1vh) * 100);
+            width: 100%;
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
+            padding-top: var(--safe-area-inset-top);
+            padding-bottom: var(--safe-area-inset-bottom);
+            padding-left: var(--safe-area-inset-left);
+            padding-right: var(--safe-area-inset-right);
+        }
+
+        /* Loading State */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .loading-overlay.show {
+            display: flex;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid var(--border-color);
+            border-top-color: var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Skeleton Loading States - FIX #9 */
+        .skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: skeleton-loading 1.5s infinite;
+            border-radius: 8px;
+        }
+
+        @keyframes skeleton-loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        .skeleton-card {
+            height: 120px;
+            margin-bottom: 1rem;
+            border-radius: 12px;
+        }
+
+        .skeleton-stat {
+            height: 50px;
+            border-radius: 8px;
+        }
+
+        /* Header - Mobile Optimized */
+        header {
+            background: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding-top: var(--safe-area-inset-top);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem var(--mobile-padding);
+            max-width: var(--max-width);
+            margin: 0 auto;
+        }
+
+        .logo {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .connection-status {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.4rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-disconnected {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .status-warning {
+            background: #fed7aa;
+            color: #92400e;
+        }
+
+        /* Main Content - Mobile First */
+        .main-wrapper {
+            background: white;
+            margin: 1rem auto;
+            border-radius: 16px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            max-width: var(--max-width);
+            overflow: hidden;
+        }
+
+        /* Hero Section - Mobile Optimized */
+        .hero-section {
+            text-align: center;
+            padding: 1.5rem var(--mobile-padding);
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+        }
+
+        .hero-title {
+            font-size: 1.75rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.75rem;
+            line-height: 1.2;
+        }
+
+        .hero-subtitle {
+            color: var(--text-light);
+            max-width: 600px;
+            margin: 0 auto 1.5rem;
+            font-size: 0.95rem;
+            line-height: 1.4;
+        }
+
+        /* Stats Bar - Mobile Grid */
+        .stats-bar {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            background: var(--bg-light);
+            border-radius: 12px;
+        }
+
+        /* Launch Banner */
+        .launch-banner {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 0.875rem 1rem;
+            border-radius: 12px;
+            text-align: center;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            line-height: 1.4;
+            animation: pulse-glow 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3); }
+            50% { box-shadow: 0 4px 20px rgba(102, 126, 234, 0.5); }
+        }
+
+        /* Action Cards */
+        .action-cards {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+            padding: 1.5rem var(--mobile-padding);
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        @media (min-width: 600px) {
+            .action-cards {
+                grid-template-columns: 1fr 1fr;
+                gap: 1.5rem;
+                padding: 2rem var(--desktop-padding);
+            }
+        }
+
+        .action-card {
+            background: var(--bg-light);
+            border-radius: 16px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            cursor: pointer;
+        }
+
+        .action-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .action-card:active {
+            transform: scale(0.98);
+        }
+
+        .action-card-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            font-size: 1.75rem;
+        }
+
+        .action-card-icon.search {
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+        }
+
+        .action-card-icon.rate {
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+        }
+
+        .action-card-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .action-card-description {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            line-height: 1.5;
+            margin-bottom: 1.25rem;
+        }
+
+        .action-card-btn {
+            display: inline-block;
+            width: 100%;
+            padding: 0.875rem 1.5rem;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s;
+            border: none;
+            cursor: pointer;
+        }
+
+        .action-card-btn.search {
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+            color: white;
+        }
+
+        .action-card-btn.search:hover {
+            background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+        }
+
+        .action-card-btn.rate {
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+            color: white;
+        }
+
+        .action-card-btn.rate:hover {
+            background: linear-gradient(135deg, #047857 0%, #059669 100%);
+        }
+
+        /* reCAPTCHA Container */
+        .recaptcha-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 1.5rem 0;
+        }
+
+        .g-recaptcha {
+            transform-origin: center;
+        }
+
+        /* Scale reCAPTCHA on very small screens */
+        @media (max-width: 340px) {
+            .g-recaptcha {
+                transform: scale(0.9);
+            }
+        }
+
+        .captcha-error {
+            color: var(--error-color);
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+            display: none;
+        }
+
+        .captcha-error.show {
+            display: block;
+        }
+
+        /* Task Type Chips */
+        .task-type-container {
+            margin-top: 0.5rem;
+        }
+
+        .task-type-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .task-type-chip {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            border: 1px solid var(--border-color);
+            background: white;
+            color: var(--text-dark);
+            cursor: pointer;
+            transition: all 0.2s;
+            user-select: none;
+        }
+
+        .task-type-chip:hover {
+            border-color: var(--primary-color);
+            background: rgba(99, 102, 241, 0.05);
+        }
+
+        .task-type-chip.selected {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .task-type-chip:active {
+            transform: scale(0.95);
+        }
+
+        .clear-task-type {
+            font-size: 0.8rem;
+            color: var(--text-light);
+            cursor: pointer;
+            margin-left: 0.5rem;
+            text-decoration: underline;
+        }
+
+        .clear-task-type:hover {
+            color: var(--primary-color);
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 0.5rem;
+        }
+
+        .stat-number {
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-light);
+        }
+
+        /* Search Section - Mobile Optimized */
+        .search-container {
+            max-width: 800px;
+            margin: 1.5rem auto;
+            padding: 0 var(--mobile-padding);
+        }
+
+        .search-form {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 1rem;
+            font-size: 16px; /* Prevents zoom on iOS */
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            outline: none;
+            transition: border-color 0.3s;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .search-input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .search-btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 1rem;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s;
+            touch-action: manipulation;
+            min-height: 48px; /* Touch target size */
+        }
+
+        .search-btn:active {
+            transform: scale(0.98);
+        }
+
+        .search-btn:hover:not(:disabled) {
+            background: var(--secondary-color);
+        }
+
+        .search-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        /* Popular Tasks - Mobile Scrollable with scroll indicator - FIX #3 */
+        .popular-tasks-wrapper {
+            position: relative;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin: 0 -1rem;
+            padding: 0 1rem;
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* IE/Edge */
+        }
+
+        .popular-tasks-wrapper::-webkit-scrollbar {
+            display: none; /* Chrome/Safari */
+        }
+
+        /* Scroll indicator gradient */
+        .popular-tasks-container {
+            position: relative;
+        }
+
+        .popular-tasks-container::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            width: 40px;
+            background: linear-gradient(to left, white 0%, transparent 100%);
+            pointer-events: none;
+            opacity: 1;
+            transition: opacity 0.3s;
+        }
+
+        .popular-tasks-container.scrolled-end::after {
+            opacity: 0;
+        }
+
+        /* Scroll hint text */
+        .scroll-hint {
+            text-align: center;
+            font-size: 0.7rem;
+            color: var(--text-light);
+            margin-top: 0.25rem;
+            opacity: 0.7;
+        }
+
+        .popular-tasks {
+            display: flex;
+            gap: 0.5rem;
+            padding: 0.5rem 0;
+            white-space: nowrap;
+            /* FIX #8: Scroll snap for native feel */
+            scroll-snap-type: x proximity;
+        }
+
+        .task-chip {
+            flex-shrink: 0;
+            background: var(--bg-light);
+            padding: 0.6rem 1rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            color: var(--text-dark);
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 1px solid transparent;
+            touch-action: manipulation;
+            min-height: 40px;
+            display: inline-flex;
+            align-items: center;
+            scroll-snap-align: start;
+        }
+
+        .task-chip:active {
+            transform: scale(0.95);
+            background: white;
+            border-color: var(--primary-color);
+        }
+
+        /* Search Results - Mobile Optimized - FIX #4 */
+        .search-results {
+            padding: var(--mobile-padding);
+            min-height: 200px;
+        }
+
+        .results-container {
+            /* FIX #4: Dynamic height instead of fixed */
+            max-height: calc(100vh - 400px);
+            max-height: calc(var(--vh, 1vh) * 100 - 400px);
+            min-height: 200px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .task-result-card {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .task-result-header {
+            display: flex;
+            align-items: start;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .rank-badge {
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        .task-result-content {
+            flex: 1;
+            min-width: 0; /* Prevent overflow */
+        }
+
+        .task-result-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+            word-wrap: break-word;
+        }
+
+        .task-rating {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+            font-size: 0.9rem;
+        }
+
+        .stars {
+            color: var(--accent-color);
+            font-size: 1.1rem;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .task-result-card.gold {
+            border: 2px solid #fbbf24;
+            background: linear-gradient(135deg, rgba(251, 191, 36, 0.05) 0%, rgba(251, 191, 36, 0.02) 100%);
+        }
+
+        .task-result-card.silver {
+            border: 2px solid #cbd5e1;
+            background: linear-gradient(135deg, rgba(203, 213, 225, 0.05) 0%, rgba(203, 213, 225, 0.02) 100%);
+        }
+
+        .task-result-card.bronze {
+            border: 2px solid #f59e0b;
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.05) 0%, rgba(245, 158, 11, 0.02) 100%);
+        }
+
+        .feedback-box {
+            margin: 0.5rem 0;
+            padding: 0.75rem;
+            background: var(--bg-light);
+            border-radius: 8px;
+            border-left: 3px solid var(--primary-color);
+            font-size: 0.9rem;
+        }
+
+        .feedback-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .feedback-task {
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .feedback-date {
+            font-size: 0.75rem;
+            color: var(--text-light);
+            white-space: nowrap;
+        }
+
+        .feedback-text {
+            font-style: italic;
+            color: var(--text-dark);
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            line-height: 1.4;
+            margin-bottom: 0.5rem;
+        }
+
+        .feedback-rating {
+            color: var(--accent-color);
+            font-size: 1rem;
+            letter-spacing: 2px;
+        }
+
+        .feedback-type {
+            display: inline-block;
+            font-size: 0.75rem;
+            color: var(--text-light);
+            background: var(--bg-light);
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            margin-top: 0.5rem;
+        }
+
+        /* Expandable reviews */
+        .reviews-expandable {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+
+        .reviews-expandable.expanded {
+            max-height: 2000px;
+            transition: max-height 0.5s ease-in;
+        }
+
+        .view-reviews-btn {
+            display: block;
+            width: 100%;
+            padding: 0.75rem;
+            margin-top: 0.75rem;
+            background: transparent;
+            border: 1px dashed var(--border-color);
+            border-radius: 8px;
+            color: var(--primary-color);
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .view-reviews-btn:hover {
+            background: var(--bg-light);
+            border-color: var(--primary-color);
+        }
+
+        .view-reviews-btn:active {
+            transform: scale(0.98);
+        }
+
+        /* Rating Form - Mobile Optimized */
+        .rating-container {
+            max-width: 600px;
+            margin: 1.5rem auto;
+            padding: var(--mobile-padding);
+            /* FIX #7: Extra bottom padding for keyboard */
+            padding-bottom: calc(var(--mobile-padding) + 100px);
+        }
+
+        .rating-container h2 {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: var(--text-dark);
+            font-size: 0.95rem;
+        }
+
+        .form-group label .required {
+            color: var(--error-color);
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.875rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 16px; /* Prevents zoom on iOS */
+            background: white;
+            transition: border-color 0.3s;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        /* FIX #2: Custom select arrow for iOS */
+        .form-group select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            padding-right: 2.5rem;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+            font-family: inherit;
+        }
+
+        .char-counter {
+            text-align: right;
+            font-size: 0.75rem;
+            color: var(--text-light);
+            margin-top: 0.25rem;
+        }
+
+        .char-counter.warning {
+            color: var(--warning-color);
+        }
+
+        .char-counter.error {
+            color: var(--error-color);
+        }
+
+        /* Star Rating - Mobile Touch Optimized - FIX #6 */
+        .star-rating {
+            display: flex;
+            gap: 0.5rem; /* Increased gap */
+            font-size: 2.5rem;
+            justify-content: center;
+            padding: 0.75rem 0;
+            touch-action: manipulation;
+        }
+
+        .star {
+            cursor: pointer;
+            color: #ddd;
+            transition: all 0.2s;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            padding: 0.5rem; /* Increased padding */
+            min-width: 52px; /* Slightly larger */
+            min-height: 52px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%; /* Round touch area */
+            background: transparent;
+        }
+
+        .star:active {
+            transform: scale(1.2);
+            background: rgba(251, 191, 36, 0.1);
+        }
+
+        .star.active {
+            color: var(--accent-color);
+        }
+
+        /* Messages - Mobile Visible */
+        .message {
+            padding: 0.875rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            display: none;
+            animation: slideIn 0.3s ease-out;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .message.show {
+            display: block;
+        }
+
+        .success-message {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #10b981;
+        }
+
+        .error-message {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #ef4444;
+        }
+
+        .warning-message {
+            background: #fed7aa;
+            color: #92400e;
+            border: 1px solid #f59e0b;
+        }
+
+        /* Buttons - Touch Optimized */
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 1rem;
+            border-radius: 12px;
+            font-size: 1rem;
+            cursor: pointer;
+            font-weight: 600;
+            width: 100%;
+            transition: all 0.3s;
+            min-height: 48px;
+            touch-action: manipulation;
+        }
+
+        .btn-primary:active {
+            transform: scale(0.98);
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: var(--secondary-color);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        /* FIX #10: Footer */
+        .footer {
+            text-align: center;
+            padding: 1.5rem var(--mobile-padding);
+            background: var(--bg-light);
+            border-top: 1px solid var(--border-color);
+            margin-top: 2rem;
+        }
+
+        .footer-text {
+            font-size: 0.8rem;
+            color: var(--text-light);
+        }
+
+        .footer-links {
+            margin-top: 0.5rem;
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .footer-link {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-size: 0.8rem;
+        }
+
+        .footer-link:hover {
+            text-decoration: underline;
+        }
+
+        /* Pull to refresh indicator - FIX #5 */
+        .pull-indicator {
+            position: fixed;
+            top: 60px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100%);
+            background: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            font-size: 0.8rem;
+            color: var(--text-light);
+            opacity: 0;
+            transition: all 0.3s;
+            z-index: 99;
+        }
+
+        .pull-indicator.visible {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .pull-indicator.refreshing {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        /* Tablet Styles */
+        @media (min-width: 768px) {
+            :root {
+                --mobile-padding: 1.5rem;
+            }
+
+            .header-content {
+                padding: 1rem var(--desktop-padding);
+            }
+
+            .logo {
+                font-size: 1.5rem;
+            }
+
+            .connection-status {
+                font-size: 0.875rem;
+                padding: 0.5rem 1rem;
+            }
+
+            .hero-section {
+                padding: 2rem var(--desktop-padding);
+            }
+
+            .hero-title {
+                font-size: 2.25rem;
+            }
+
+            .hero-subtitle {
+                font-size: 1.1rem;
+            }
+
+            .stats-bar {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 1rem;
+                padding: 1rem;
+            }
+
+            .stat-number {
+                font-size: 1.5rem;
+            }
+
+            .stat-label {
+                font-size: 0.875rem;
+            }
+
+            .search-form {
+                flex-direction: row;
+                position: relative;
+            }
+
+            .search-input {
+                padding-right: 120px;
+            }
+
+            .search-btn {
+                position: absolute;
+                right: 4px;
+                top: 50%;
+                transform: translateY(-50%);
+                width: auto;
+                padding: 0.75rem 1.5rem;
+            }
+
+            .popular-tasks-wrapper {
+                overflow-x: visible;
+                margin: 0;
+                padding: 0;
+            }
+
+            .popular-tasks-container::after {
+                display: none;
+            }
+
+            .scroll-hint {
+                display: none;
+            }
+
+            .popular-tasks {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .task-result-card {
+                padding: 1.5rem;
+            }
+
+            .rating-container {
+                padding: var(--desktop-padding);
+                padding-bottom: var(--desktop-padding);
+            }
+
+            .star-rating {
+                gap: 0.75rem;
+            }
+        }
+
+        /* Desktop Styles */
+        @media (min-width: 1024px) {
+            .main-wrapper {
+                margin: 2rem auto;
+            }
+
+            .hero-section {
+                padding: 3rem var(--desktop-padding);
+            }
+
+            .hero-title {
+                font-size: 2.5rem;
+            }
+
+            .hero-subtitle {
+                font-size: 1.2rem;
+                margin-bottom: 2rem;
+            }
+
+            .search-container {
+                padding: 0 var(--desktop-padding);
+                margin: 2rem auto;
+            }
+
+            .search-results {
+                padding: var(--desktop-padding);
+            }
+
+            .results-container {
+                max-height: 600px;
+            }
+
+            .task-result-header {
+                gap: 1rem;
+            }
+
+            .rank-badge {
+                font-size: 2rem;
+            }
+        }
+
+        /* Landscape Mobile Adjustments */
+        @media (max-height: 600px) and (orientation: landscape) {
+            .hero-section {
+                padding: 1rem var(--mobile-padding);
+            }
+
+            .hero-title {
+                font-size: 1.5rem;
+            }
+
+            .hero-subtitle {
+                display: none;
+            }
+
+            .stats-bar {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        /* Accessibility */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        /* Focus styles for keyboard navigation */
+        *:focus-visible {
+            outline: 2px solid var(--primary-color);
+            outline-offset: 2px;
+        }
+
+        /* Print styles */
+        @media print {
+            header, .search-container, .rating-container, .footer {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Pull to Refresh Indicator - FIX #5 -->
+    <div class="pull-indicator" id="pullIndicator">
+        <span id="pullText">↓ Pull to refresh</span>
+    </div>
+
+    <!-- Header -->
+    <header role="banner">
+        <div class="header-content">
+            <a href="#" class="logo" onclick="location.reload(); return false;">
+                <span aria-label="Star emoji">⭐</span> AI Tools Rank
+            </a>
+            <div id="connectionStatus" class="connection-status" role="status" aria-live="polite">
+                <span id="statusText">Loading...</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-wrapper" role="main">
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <h1 class="hero-title">Find the Best AI Tool for Your Task</h1>
+            <p class="hero-subtitle">
+                Find the best AI tool for your task — based on real user results.
+            </p>
+            
+            <div class="launch-banner" id="launchBanner">
+                🚀 <strong>Just launched!</strong> Help us build the first crowd-sourced AI tool rankings — your ratings matter!
+            </div>
+
+            <div class="stats-bar" role="region" aria-label="Statistics" id="statsBar">
+                <div class="stat-item">
+                    <div class="stat-number" id="toolCount" aria-live="polite">-</div>
+                    <div class="stat-label">Tools</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="ratingCount" aria-live="polite">-</div>
+                    <div class="stat-label">Reviews</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="taskCount" aria-live="polite">-</div>
+                    <div class="stat-label">Tasks</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="avgRating" aria-live="polite">-</div>
+                    <div class="stat-label">Avg ⭐</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Action Cards -->
+        <section class="action-cards">
+            <div class="action-card" onclick="document.getElementById('searchInput').focus(); document.getElementById('searchInput').scrollIntoView({behavior: 'smooth', block: 'center'});">
+                <div class="action-card-icon search">
+                    🔍
+                </div>
+                <h3 class="action-card-title">Search AI Tools</h3>
+                <p class="action-card-description">Find AI tools by category, task description, ratings, or price range with our intelligent search.</p>
+                <button class="action-card-btn search" type="button">Start Searching</button>
+            </div>
+
+            <div class="action-card" onclick="document.getElementById('ratingForm').scrollIntoView({behavior: 'smooth', block: 'start'});">
+                <div class="action-card-icon rate">
+                    ⭐
+                </div>
+                <h3 class="action-card-title">Rate an AI Tool</h3>
+                <p class="action-card-description">Share your experience and help others discover great AI tools through authentic reviews.</p>
+                <button class="action-card-btn rate" type="button">Add Rating</button>
+            </div>
+        </section>
+
+        <!-- Search Section -->
+        <section class="search-container" role="search">
+            <form class="search-form" onsubmit="performSearch(event); return false;">
+                <label for="searchInput" class="sr-only">Search for a task</label>
+                <input type="text" 
+                       id="searchInput" 
+                       class="search-input" 
+                       placeholder="What task do you need to do?"
+                       maxlength="200"
+                       autocomplete="off"
+                       spellcheck="true">
+                <button type="submit" class="search-btn" id="searchBtn">
+                    <span id="searchBtnText">Search</span>
+                </button>
+            </form>
+        </section>
+
+        <!-- Search Results -->
+        <section class="search-results" role="region" aria-label="Search results">
+            <div id="searchResults" class="results-container" aria-live="polite">
+                <div style="text-align: center; color: var(--text-light); padding: 2rem;">
+                    <p>Search for a task to find the best AI tools</p>
+                    <p style="margin-top: 0.5rem; font-size: 0.9rem;">Or tap a popular task above</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Rating Form -->
+        <section class="rating-container" role="form" aria-label="Rate an AI tool">
+            <h2>Rate an AI Tool</h2>
+            
+            <div class="message success-message" id="successMessage" role="alert">
+                ✅ <span id="successText">Rating saved!</span>
+            </div>
+            
+            <div class="message error-message" id="errorMessage" role="alert">
+                ❌ <span id="errorText">Something went wrong</span>
+            </div>
+            
+            <div class="message warning-message" id="warningMessage" role="alert">
+                ⚠️ <span id="warningText">Please check your input</span>
+            </div>
+
+            <form id="ratingForm" novalidate>
+                <div class="form-group">
+                    <label for="toolName">
+                        Tool Name <span class="required" aria-label="required">*</span>
+                    </label>
+                    <input type="text" 
+                           id="toolName" 
+                           required 
+                           placeholder="e.g., ChatGPT"
+                           maxlength="50"
+                           autocomplete="off"
+                           aria-required="true">
+                </div>
+
+                <div class="form-group">
+                    <label for="toolWebsite">Website (optional)</label>
+                    <input type="url" 
+                           id="toolWebsite" 
+                           placeholder="https://example.com"
+                           maxlength="200"
+                           autocomplete="url">
+                </div>
+
+                <div class="form-group">
+                    <label for="taskDescription">
+                        Task Used For <span class="required">*</span>
+                    </label>
+                    <textarea id="taskDescription" 
+                              required 
+                              placeholder="What did you use it for?"
+                              maxlength="200"
+                              aria-required="true"></textarea>
+                    <div class="char-counter" id="taskCounter">0/200</div>
+                </div>
+
+                <div class="form-group">
+                    <label>Task Type <span style="color: var(--text-light); font-weight: normal;">(optional)</span></label>
+                    <div class="task-type-container">
+                        <div class="task-type-chips" id="taskTypeChips">
+                            <span class="task-type-chip" data-type="Writing">✍️ Writing</span>
+                            <span class="task-type-chip" data-type="Image generation">🎨 Image generation</span>
+                            <span class="task-type-chip" data-type="Data analysis">📊 Data analysis</span>
+                            <span class="task-type-chip" data-type="Coding">💻 Coding</span>
+                            <span class="task-type-chip" data-type="Research">🔬 Research</span>
+                            <span class="task-type-chip" data-type="Planning">📋 Planning</span>
+                            <span class="task-type-chip" data-type="Marketing">📢 Marketing</span>
+                            <span class="task-type-chip" data-type="Design">🎯 Design</span>
+                            <span class="task-type-chip" data-type="Automation">⚙️ Automation</span>
+                            <span class="task-type-chip" data-type="Audio/Video">🎬 Audio/Video</span>
+                            <span class="task-type-chip" data-type="Translation">🌍 Translation</span>
+                            <span class="task-type-chip" data-type="Other">📁 Other</span>
+                        </div>
+                        <span class="clear-task-type" id="clearTaskType" style="display: none;" onclick="clearTaskType()">Clear selection</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="userFeedback">
+                        Your Feedback <span class="required">*</span>
+                    </label>
+                    <textarea id="userFeedback" 
+                              required 
+                              placeholder="How was your experience?"
+                              maxlength="500"
+                              aria-required="true"></textarea>
+                    <div class="char-counter" id="feedbackCounter">0/500</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="toolPrice">Pricing</label>
+                    <select id="toolPrice" aria-label="Select pricing">
+                        <option value="">Select...</option>
+                        <option value="Free">Free</option>
+                        <option value="Free with limits">Free (limited)</option>
+                        <option value="$1-10/month">$1-10/mo</option>
+                        <option value="$11-20/month">$11-20/mo</option>
+                        <option value="$21-50/month">$21-50/mo</option>
+                        <option value="$50+/month">$50+/mo</option>
+                        <option value="Usage-based">Usage-based</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Rating <span class="required">*</span></label>
+                    <div class="star-rating" id="starRating" role="radiogroup" aria-label="Rating">
+                        <span class="star" data-rating="1" role="radio" aria-checked="false" tabindex="0">★</span>
+                        <span class="star" data-rating="2" role="radio" aria-checked="false" tabindex="0">★</span>
+                        <span class="star" data-rating="3" role="radio" aria-checked="false" tabindex="0">★</span>
+                        <span class="star" data-rating="4" role="radio" aria-checked="false" tabindex="0">★</span>
+                        <span class="star" data-rating="5" role="radio" aria-checked="false" tabindex="0">★</span>
+                    </div>
+                </div>
+
+                <div class="form-group recaptcha-container">
+                    <div class="g-recaptcha" data-sitekey="6LfBRhgsAAAAAMJGVjoRF3to6p8LsssvTSs3lpRR" data-callback="onCaptchaSuccess" data-expired-callback="onCaptchaExpired"></div>
+                    <div class="captcha-error" id="captchaError">Please complete the CAPTCHA</div>
+                </div>
+
+                <button type="submit" class="btn-primary" id="submitBtn">
+                    <span id="submitBtnText">Submit Rating</span>
+                </button>
+            </form>
+        </section>
+
+        <!-- FIX #10: Footer -->
+        <footer class="footer">
+            <p class="footer-text">AI Tools Rank — Helping you find the best AI tools for your tasks</p>
+            <div class="footer-links">
+                <a href="#" class="footer-link" onclick="scrollToTop(); return false;">Back to top</a>
+                <span style="color: var(--text-light);">•</span>
+                <a href="https://linkedin.com" class="footer-link" target="_blank" rel="noopener">Share on LinkedIn</a>
+            </div>
+            <p class="footer-text" style="margin-top: 0.75rem; font-size: 0.7rem;">Built by Ron Lev</p>
+        </footer>
+    </main>
+
+    <script>
+        'use strict';
+
+        // ====================================
+        // CONFIGURATION
+        // ====================================
+        
+        const CONFIG = Object.freeze({
+            FIREBASE: {
+                apiKey: "AIzaSyBfEWQo79qbO10AMwsmaODqu7u_C_m2HGg",
+                authDomain: "ai-tools-rank.firebaseapp.com",
+                projectId: "ai-tools-rank",
+                storageBucket: "ai-tools-rank.firebasestorage.app",
+                messagingSenderId: "332988419959",
+                appId: "1:332988419959:web:3d4eb8552f3205fcb79b72"
+            },
+            LIMITS: {
+                MAX_LOCAL_STORAGE: 1000000,
+                MAX_RATINGS_DISPLAY: 50,
+                MAX_RATINGS_STORE: 500,
+                SEARCH_DEBOUNCE: 300,
+                SUBMIT_COOLDOWN: 2000,
+                MIN_SEARCH_LENGTH: 2,
+                MAX_SEARCH_LENGTH: 200,
+                MAX_TOOL_NAME: 50,
+                MAX_TASK_DESC: 200,
+                MAX_FEEDBACK: 500
+            }
+        });
+
+        // Global state
+        const AppState = {
+            db: null,
+            isConnected: false,
+            selectedRating: 0,
+            selectedTaskType: null,
+            allRatings: [],
+            isSubmitting: false,
+            searchTimeout: null,
+            lastSubmitTime: 0,
+            isMobile: /iPhone|iPad|iPod|Android/i.test(navigator.userAgent),
+            isLoading: true,
+            pullStartY: 0,
+            isPulling: false,
+            captchaVerified: false
+        };
+
+        // reCAPTCHA callback functions (must be global)
+        function onCaptchaSuccess(token) {
+            AppState.captchaVerified = true;
+            document.getElementById('captchaError').classList.remove('show');
+        }
+
+        function onCaptchaExpired() {
+            AppState.captchaVerified = false;
+        }
+
+        // ====================================
+        // SECURITY FUNCTIONS
+        // ====================================
+        
+        function sanitizeHTML(str) {
+            if (!str) return '';
+            if (typeof DOMPurify !== 'undefined') {
+                return DOMPurify.sanitize(str, { ALLOWED_TAGS: [] });
+            }
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
+        function validateInput(value, maxLength) {
+            if (!value || typeof value !== 'string') return false;
+            if (value.length > maxLength) return false;
+            return true;
+        }
+
+        function validateRating(rating) {
+            return Number.isInteger(rating) && rating >= 1 && rating <= 5;
+        }
+
+        function canSubmit() {
+            const now = Date.now();
+            const timeSinceLastSubmit = now - AppState.lastSubmitTime;
+            return !AppState.isSubmitting && timeSinceLastSubmit > CONFIG.LIMITS.SUBMIT_COOLDOWN;
+        }
+
+        // ====================================
+        // INITIALIZATION
+        // ====================================
+        
+        function initializeApp() {
+            console.log('Initializing mobile-optimized app...');
+            
+            // FIX #1: Better viewport height handling
+            updateViewportHeight();
+            window.addEventListener('resize', updateViewportHeight);
+            window.addEventListener('orientationchange', () => {
+                setTimeout(updateViewportHeight, 100);
+            });
+            
+            // Detect mobile and adjust
+            if (AppState.isMobile) {
+                document.body.classList.add('mobile');
+                adjustForMobile();
+            }
+            
+            // Check Firebase
+            if (typeof firebase !== 'undefined') {
+                initializeFirebase();
+            } else {
+                loadFirebaseFallback();
+            }
+            
+            setupEventListeners();
+            setupScrollIndicator();
+            updateCharCounter('taskDescription');
+            updateCharCounter('userFeedback');
+        }
+
+        // FIX #1: Proper viewport height calculation
+        function updateViewportHeight() {
+            const vh = window.innerHeight * 0.01;
+            document.documentElement.style.setProperty('--vh', `${vh}px`);
+        }
+
+        function adjustForMobile() {
+            // FIX #5: Pull to refresh functionality
+            setupPullToRefresh();
+            
+            // FIX #7: Handle keyboard appearance
+            setupKeyboardHandling();
+        }
+
+        // FIX #5: Pull to refresh
+        function setupPullToRefresh() {
+            let startY = 0;
+            let currentY = 0;
+            const pullIndicator = document.getElementById('pullIndicator');
+            const pullText = document.getElementById('pullText');
+            
+            document.addEventListener('touchstart', (e) => {
+                if (window.scrollY === 0) {
+                    startY = e.touches[0].pageY;
+                    AppState.isPulling = true;
+                }
+            }, { passive: true });
+            
+            document.addEventListener('touchmove', (e) => {
+                if (!AppState.isPulling || window.scrollY > 0) return;
+                
+                currentY = e.touches[0].pageY;
+                const pullDistance = currentY - startY;
+                
+                if (pullDistance > 0 && pullDistance < 150) {
+                    pullIndicator.classList.add('visible');
+                    
+                    if (pullDistance > 80) {
+                        pullText.textContent = '↑ Release to refresh';
+                    } else {
+                        pullText.textContent = '↓ Pull to refresh';
+                    }
+                }
+            }, { passive: true });
+            
+            document.addEventListener('touchend', () => {
+                const pullDistance = currentY - startY;
+                
+                if (AppState.isPulling && pullDistance > 80 && window.scrollY === 0) {
+                    pullIndicator.classList.add('refreshing');
+                    pullText.textContent = '⟳ Refreshing...';
+                    
+                    setTimeout(() => {
+                        location.reload();
+                    }, 500);
+                } else {
+                    pullIndicator.classList.remove('visible');
+                }
+                
+                AppState.isPulling = false;
+                startY = 0;
+                currentY = 0;
+            }, { passive: true });
+        }
+
+        // FIX #7: Keyboard handling
+        function setupKeyboardHandling() {
+            const inputs = document.querySelectorAll('input, textarea, select');
+            
+            inputs.forEach(input => {
+                input.addEventListener('focus', () => {
+                    // Add extra padding when keyboard opens
+                    setTimeout(() => {
+                        input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }, 300);
+                });
+            });
+
+            // Handle visual viewport changes (keyboard open/close)
+            if (window.visualViewport) {
+                window.visualViewport.addEventListener('resize', () => {
+                    const activeEl = document.activeElement;
+                    if (activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA')) {
+                        activeEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                });
+            }
+        }
+
+        // FIX #3: Scroll indicator for task chips
+        function setupScrollIndicator() {
+            const wrapper = document.getElementById('tasksWrapper');
+            const container = wrapper.parentElement;
+            const hint = document.getElementById('scrollHint');
+            
+            if (!AppState.isMobile) {
+                hint.style.display = 'none';
+                return;
+            }
+            
+            wrapper.addEventListener('scroll', () => {
+                const isAtEnd = wrapper.scrollLeft + wrapper.clientWidth >= wrapper.scrollWidth - 10;
+                
+                if (isAtEnd) {
+                    container.classList.add('scrolled-end');
+                    hint.style.opacity = '0';
+                } else {
+                    container.classList.remove('scrolled-end');
+                    hint.style.opacity = '0.7';
+                }
+            });
+        }
+
+        function initializeFirebase() {
+            try {
+                firebase.initializeApp(CONFIG.FIREBASE);
+                AppState.db = firebase.firestore();
+                
+                AppState.db.enablePersistence({ synchronizeTabs: true })
+                    .catch(err => console.warn('Persistence failed:', err));
+                
+                AppState.db.collection('ratings').limit(1).get()
+                    .then(() => {
+                        AppState.isConnected = true;
+                        updateConnectionStatus('connected');
+                        loadRatings();
+                    })
+                    .catch(error => {
+                        if (error.code === 'permission-denied') {
+                            AppState.isConnected = true;
+                            updateConnectionStatus('write-only');
+                        } else {
+                            updateConnectionStatus('offline');
+                        }
+                        loadLocalRatings();
+                    });
+            } catch (error) {
+                console.error('Firebase error:', error);
+                initializeOfflineMode();
+            }
+        }
+
+        function loadFirebaseFallback() {
+            const script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/firebase@9.23.0/firebase-compat.min.js';
+            script.onload = () => {
+                if (typeof firebase !== 'undefined') {
+                    initializeFirebase();
+                } else {
+                    initializeOfflineMode();
+                }
+            };
+            script.onerror = () => initializeOfflineMode();
+            document.head.appendChild(script);
+        }
+
+        function initializeOfflineMode() {
+            AppState.isConnected = false;
+            updateConnectionStatus('offline');
+            loadLocalRatings();
+        }
+
+        // ====================================
+        // DATA MANAGEMENT
+        // ====================================
+        
+        async function loadRatings() {
+            AppState.isLoading = true;
+            
+            try {
+                const snapshot = await AppState.db.collection('ratings')
+                    .orderBy('createdAt', 'desc')
+                    .limit(CONFIG.LIMITS.MAX_RATINGS_STORE)
+                    .get();
+                
+                AppState.allRatings = snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+                
+                updateStats();
+            } catch (error) {
+                console.error('Error loading:', error);
+                loadLocalRatings();
+            } finally {
+                AppState.isLoading = false;
+            }
+        }
+
+        function loadLocalRatings() {
+            AppState.isLoading = true;
+            
+            try {
+                const stored = localStorage.getItem('aiToolRatings');
+                if (stored) {
+                    AppState.allRatings = JSON.parse(stored);
+                } else {
+                    // Demo data
+                    AppState.allRatings = [
+                        { id: 'demo1', toolName: 'ChatGPT', task: 'write marketing copy', feedback: 'Great for content', rating: 5, price: 'Free' },
+                        { id: 'demo2', toolName: 'Claude', task: 'analyze data', feedback: 'Excellent analysis', rating: 5, price: '$20/month' },
+                        { id: 'demo3', toolName: 'Midjourney', task: 'generate images', feedback: 'Amazing quality', rating: 5, price: '$10/month' }
+                    ];
+                }
+                updateStats();
+            } catch (error) {
+                console.error('Local storage error:', error);
+            } finally {
+                AppState.isLoading = false;
+            }
+        }
+
+        function saveLocalRatings() {
+            try {
+                const data = JSON.stringify(AppState.allRatings.slice(0, CONFIG.LIMITS.MAX_RATINGS_STORE));
+                if (data.length < CONFIG.LIMITS.MAX_LOCAL_STORAGE) {
+                    localStorage.setItem('aiToolRatings', data);
+                }
+            } catch (error) {
+                console.error('Save error:', error);
+            }
+        }
+
+        // ====================================
+        // SEARCH
+        // ====================================
+        
+        function normalizeToolName(name) {
+            return name.toLowerCase().replace(/[^a-z0-9]/g, '');
+        }
+
+        function findBestToolsForTask(searchTask) {
+            if (!searchTask || searchTask.length < CONFIG.LIMITS.MIN_SEARCH_LENGTH) return [];
+            
+            const searchWords = searchTask.toLowerCase().split(/\s+/).filter(w => w.length > 2);
+            const results = new Map();
+            
+            AppState.allRatings.forEach(rating => {
+                const taskWords = (rating.task || '').toLowerCase().split(/\s+/).filter(w => w.length > 2);
+                
+                let similarity = 0;
+                searchWords.forEach(sw => {
+                    if (taskWords.includes(sw)) similarity += 30;
+                    else if (taskWords.some(tw => tw.includes(sw) || sw.includes(tw))) similarity += 15;
+                });
+                
+                if (similarity > 20) {
+                    const key = normalizeToolName(rating.toolName);
+                    if (!results.has(key)) {
+                        results.set(key, {
+                            name: rating.toolName,
+                            ratings: [],
+                            tasks: []
+                        });
+                    }
+                    
+                    const tool = results.get(key);
+                    tool.ratings.push(rating.rating);
+                    tool.tasks.push({
+                        task: rating.task,
+                        taskType: rating.taskType || null,
+                        feedback: rating.feedback,
+                        rating: rating.rating,
+                        createdAt: rating.createdAt
+                    });
+                }
+            });
+            
+            return Array.from(results.values())
+                .map(tool => ({
+                    name: tool.name,
+                    avgRating: tool.ratings.reduce((a, b) => a + b, 0) / tool.ratings.length,
+                    reviewCount: tool.ratings.length,
+                    tasks: tool.tasks.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)) // Sort by newest first
+                }))
+                .sort((a, b) => b.avgRating - a.avgRating)
+                .slice(0, CONFIG.LIMITS.MAX_RATINGS_DISPLAY);
+        }
+
+        function performSearch(event) {
+            if (event) event.preventDefault();
+            
+            const query = document.getElementById('searchInput').value.trim();
+            
+            if (query.length < CONFIG.LIMITS.MIN_SEARCH_LENGTH) {
+                document.getElementById('searchResults').innerHTML = `
+                    <div style="text-align: center; padding: 2rem; color: var(--text-light);">
+                        <p>Enter at least 2 characters</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Show loading skeleton - FIX #9
+            document.getElementById('searchResults').innerHTML = `
+                <div class="skeleton skeleton-card"></div>
+                <div class="skeleton skeleton-card"></div>
+            `;
+            
+            clearTimeout(AppState.searchTimeout);
+            AppState.searchTimeout = setTimeout(() => {
+                const results = findBestToolsForTask(query);
+                displayResults(query, results);
+            }, CONFIG.LIMITS.SEARCH_DEBOUNCE);
+        }
+
+        function searchForTask(task) {
+            document.getElementById('searchInput').value = task;
+            performSearch();
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return '';
+            try {
+                const date = new Date(dateString);
+                return date.toLocaleDateString('en-US', { 
+                    month: 'short', 
+                    day: 'numeric', 
+                    year: 'numeric' 
+                });
+            } catch (e) {
+                return '';
+            }
+        }
+
+        function toggleReviews(toolId) {
+            const container = document.getElementById(`reviews-${toolId}`);
+            const button = document.getElementById(`btn-${toolId}`);
+            
+            if (container.classList.contains('expanded')) {
+                container.classList.remove('expanded');
+                button.innerHTML = `▼ View all reviews`;
+            } else {
+                container.classList.add('expanded');
+                button.innerHTML = `▲ Hide reviews`;
+            }
+        }
+
+        function displayResults(query, results) {
+            const container = document.getElementById('searchResults');
+            const sanitizedQuery = sanitizeHTML(query);
+            
+            if (results.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 2rem;">
+                        <p>No tools found for "${sanitizedQuery}"</p>
+                        <p style="color: var(--text-light); margin-top: 1rem;">
+                            Be the first to rate a tool!
+                        </p>
+                    </div>
+                `;
+                return;
+            }
+            
+            const resultsHTML = results.map((tool, index) => {
+                const rankEmoji = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `#${index + 1}`;
+                const rankClass = index === 0 ? 'gold' : index === 1 ? 'silver' : index === 2 ? 'bronze' : '';
+                const toolId = `tool-${index}`;
+                const hasMoreReviews = tool.tasks.length > 2;
+                
+                // First 2 reviews shown by default
+                const previewReviews = tool.tasks.slice(0, 2);
+                // All reviews for expanded view
+                const allReviews = tool.tasks;
+                
+                return `
+                    <article class="task-result-card ${rankClass}">
+                        <div class="task-result-header">
+                            <div class="rank-badge">${rankEmoji}</div>
+                            <div class="task-result-content">
+                                <h3 class="task-result-title">${sanitizeHTML(tool.name)}</h3>
+                                <div class="task-rating">
+                                    <span class="stars">${'★'.repeat(Math.round(tool.avgRating))}</span>
+                                    <strong>${tool.avgRating.toFixed(1)}</strong>
+                                    <span style="color: var(--text-light);">(${tool.reviewCount} ${tool.reviewCount === 1 ? 'review' : 'reviews'})</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Preview reviews (always visible) -->
+                        <div class="reviews-preview">
+                            ${previewReviews.map(t => `
+                                <div class="feedback-box">
+                                    <div class="feedback-header">
+                                        <span class="feedback-task">Task: ${sanitizeHTML(t.task)}</span>
+                                        <span class="feedback-date">${formatDate(t.createdAt)}</span>
+                                    </div>
+                                    <div class="feedback-text">"${sanitizeHTML(t.feedback)}"</div>
+                                    <div class="feedback-rating">${'★'.repeat(t.rating)}${'☆'.repeat(5 - t.rating)}</div>
+                                    ${t.taskType ? `<span class="feedback-type">Type: ${sanitizeHTML(t.taskType)}</span>` : ''}
+                                </div>
+                            `).join('')}
+                        </div>
+                        
+                        <!-- Expandable reviews section -->
+                        ${hasMoreReviews ? `
+                            <div class="reviews-expandable" id="reviews-${toolId}">
+                                ${allReviews.slice(2).map(t => `
+                                    <div class="feedback-box">
+                                        <div class="feedback-header">
+                                            <span class="feedback-task">Task: ${sanitizeHTML(t.task)}</span>
+                                            <span class="feedback-date">${formatDate(t.createdAt)}</span>
+                                        </div>
+                                        <div class="feedback-text">"${sanitizeHTML(t.feedback)}"</div>
+                                        <div class="feedback-rating">${'★'.repeat(t.rating)}${'☆'.repeat(5 - t.rating)}</div>
+                                        ${t.taskType ? `<span class="feedback-type">Type: ${sanitizeHTML(t.taskType)}</span>` : ''}
+                                    </div>
+                                `).join('')}
+                            </div>
+                            <button class="view-reviews-btn" id="btn-${toolId}" onclick="toggleReviews('${toolId}')">
+                                ▼ View all ${allReviews.length} reviews
+                            </button>
+                        ` : ''}
+                    </article>
+                `;
+            }).join('');
+            
+            container.innerHTML = `
+                <h3 style="text-align: center; margin-bottom: 1.5rem;">
+                    Results for "${sanitizedQuery}"
+                </h3>
+                ${resultsHTML}
+            `;
+        }
+
+        // ====================================
+        // RATING SUBMISSION
+        // ====================================
+        
+        async function submitRating(event) {
+            event.preventDefault();
+            
+            if (!canSubmit()) {
+                showError('Please wait before submitting again');
+                return;
+            }
+            
+            const toolName = document.getElementById('toolName').value.trim();
+            const toolWebsite = document.getElementById('toolWebsite').value.trim();
+            const taskDescription = document.getElementById('taskDescription').value.trim();
+            const userFeedback = document.getElementById('userFeedback').value.trim();
+            const toolPrice = document.getElementById('toolPrice').value;
+            
+            if (!validateInput(toolName, CONFIG.LIMITS.MAX_TOOL_NAME)) {
+                showError('Tool name is invalid or too long');
+                return;
+            }
+            
+            if (!validateInput(taskDescription, CONFIG.LIMITS.MAX_TASK_DESC)) {
+                showError('Task description is required');
+                return;
+            }
+            
+            if (!validateInput(userFeedback, CONFIG.LIMITS.MAX_FEEDBACK)) {
+                showError('Feedback is required');
+                return;
+            }
+            
+            if (!validateRating(AppState.selectedRating)) {
+                showError('Please select a star rating');
+                return;
+            }
+            
+            // Verify CAPTCHA
+            if (!AppState.captchaVerified) {
+                document.getElementById('captchaError').classList.add('show');
+                showError('Please complete the CAPTCHA');
+                return;
+            }
+            
+            AppState.isSubmitting = true;
+            AppState.lastSubmitTime = Date.now();
+            
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            document.getElementById('submitBtnText').textContent = 'Saving...';
+            
+            try {
+                const formData = {
+                    toolName: sanitizeHTML(toolName),
+                    website: toolWebsite || null,
+                    task: sanitizeHTML(taskDescription.toLowerCase()),
+                    taskType: AppState.selectedTaskType || null,
+                    feedback: sanitizeHTML(userFeedback),
+                    rating: AppState.selectedRating,
+                    price: toolPrice || 'Not specified',
+                    createdAt: new Date().toISOString(),
+                    timestamp: Date.now()
+                };
+                
+                let submitted = false;
+                if (AppState.isConnected && AppState.db) {
+                    try {
+                        const docRef = await AppState.db.collection('ratings').add(formData);
+                        formData.id = docRef.id;
+                        submitted = true;
+                    } catch (err) {
+                        console.error('Firebase error:', err);
+                    }
+                }
+                
+                if (!submitted) {
+                    formData.id = 'local_' + Date.now();
+                }
+                
+                AppState.allRatings.unshift(formData);
+                saveLocalRatings();
+                updateStats();
+                
+                // Track submission in Google Analytics
+                if (typeof gtag !== 'undefined') {
+                    gtag('event', 'tool_ranking_submitted', {
+                        tool_name: sanitizeHTML(toolName),
+                        task_type: AppState.selectedTaskType || 'not_specified',
+                        rating: AppState.selectedRating
+                    });
+                }
+                
+                showSuccess(submitted ? 'Rating submitted!' : 'Saved locally');
+                
+                // Reset form
+                document.getElementById('ratingForm').reset();
+                AppState.selectedRating = 0;
+                AppState.selectedTaskType = null;
+                AppState.captchaVerified = false;
+                updateStars();
+                clearTaskType();
+                updateCharCounter('taskDescription');
+                updateCharCounter('userFeedback');
+                
+                // Reset reCAPTCHA
+                if (typeof grecaptcha !== 'undefined') {
+                    grecaptcha.reset();
+                }
+                
+                // Scroll to top on mobile
+                if (AppState.isMobile) {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+                
+            } catch (error) {
+                showError('Failed to submit');
+            } finally {
+                AppState.isSubmitting = false;
+                submitBtn.disabled = false;
+                document.getElementById('submitBtnText').textContent = 'Submit Rating';
+            }
+        }
+
+        // ====================================
+        // UI FUNCTIONS
+        // ====================================
+        
+        function updateConnectionStatus(status) {
+            const statusEl = document.getElementById('connectionStatus');
+            const statusText = document.getElementById('statusText');
+            
+            statusEl.className = 'connection-status';
+            
+            switch(status) {
+                case 'connected':
+                    statusText.textContent = '✅ Online';
+                    break;
+                case 'write-only':
+                    statusEl.classList.add('status-warning');
+                    statusText.textContent = '📝 Write';
+                    break;
+                case 'offline':
+                    statusEl.classList.add('status-disconnected');
+                    statusText.textContent = '💾 Offline';
+                    break;
+            }
+        }
+
+        function showSuccess(message) {
+            const el = document.getElementById('successMessage');
+            document.getElementById('successText').textContent = message;
+            el.classList.add('show');
+            setTimeout(() => el.classList.remove('show'), 4000);
+        }
+
+        function showError(message) {
+            const el = document.getElementById('errorMessage');
+            document.getElementById('errorText').textContent = message;
+            el.classList.add('show');
+            setTimeout(() => el.classList.remove('show'), 4000);
+        }
+
+        function updateStats() {
+            const tools = new Set();
+            const tasks = new Set();
+            let totalRating = 0;
+            let count = 0;
+            
+            AppState.allRatings.forEach(r => {
+                tools.add(normalizeToolName(r.toolName));
+                tasks.add(r.task?.toLowerCase());
+                totalRating += r.rating || 0;
+                count++;
+            });
+            
+            document.getElementById('toolCount').textContent = tools.size;
+            document.getElementById('taskCount').textContent = tasks.size;
+            document.getElementById('ratingCount').textContent = AppState.allRatings.length;
+            document.getElementById('avgRating').textContent = count ? (totalRating / count).toFixed(1) : '0.0';
+        }
+
+        function updateCharCounter(fieldId) {
+            const field = document.getElementById(fieldId);
+            const counter = document.getElementById(fieldId === 'taskDescription' ? 'taskCounter' : 'feedbackCounter');
+            
+            if (!field || !counter) return;
+            
+            const length = field.value.length;
+            const max = fieldId === 'taskDescription' ? CONFIG.LIMITS.MAX_TASK_DESC : CONFIG.LIMITS.MAX_FEEDBACK;
+            
+            counter.textContent = `${length}/${max}`;
+            counter.className = 'char-counter';
+            
+            if (length >= max) {
+                counter.classList.add('error');
+            } else if (length >= max * 0.9) {
+                counter.classList.add('warning');
+            }
+        }
+
+        function updateStars() {
+            document.querySelectorAll('.star').forEach((star, index) => {
+                const isActive = index < AppState.selectedRating;
+                star.style.color = isActive ? '#fbbf24' : '#ddd';
+                star.classList.toggle('active', isActive);
+                star.setAttribute('aria-checked', String(isActive));
+            });
+        }
+
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Task Type functions
+        function selectTaskType(type) {
+            // Deselect all chips
+            document.querySelectorAll('.task-type-chip').forEach(chip => {
+                chip.classList.remove('selected');
+            });
+            
+            // Select the clicked chip
+            const selectedChip = document.querySelector(`.task-type-chip[data-type="${type}"]`);
+            if (selectedChip) {
+                selectedChip.classList.add('selected');
+            }
+            
+            // Update state
+            AppState.selectedTaskType = type;
+            
+            // Show clear button
+            document.getElementById('clearTaskType').style.display = 'inline';
+        }
+
+        function clearTaskType() {
+            // Deselect all chips
+            document.querySelectorAll('.task-type-chip').forEach(chip => {
+                chip.classList.remove('selected');
+            });
+            
+            // Clear state
+            AppState.selectedTaskType = null;
+            
+            // Hide clear button
+            document.getElementById('clearTaskType').style.display = 'none';
+        }
+
+        // ====================================
+        // EVENT LISTENERS
+        // ====================================
+        
+        function setupEventListeners() {
+            // Search
+            const searchInput = document.getElementById('searchInput');
+            searchInput.addEventListener('input', () => {
+                clearTimeout(AppState.searchTimeout);
+                if (searchInput.value.length >= CONFIG.LIMITS.MIN_SEARCH_LENGTH) {
+                    AppState.searchTimeout = setTimeout(performSearch, CONFIG.LIMITS.SEARCH_DEBOUNCE);
+                }
+            });
+            
+            // Form
+            document.getElementById('ratingForm').addEventListener('submit', submitRating);
+            
+            // Character counters
+            document.getElementById('taskDescription').addEventListener('input', () => updateCharCounter('taskDescription'));
+            document.getElementById('userFeedback').addEventListener('input', () => updateCharCounter('userFeedback'));
+            
+            // Task Type chips
+            document.querySelectorAll('.task-type-chip').forEach(chip => {
+                chip.addEventListener('click', function() {
+                    const type = this.dataset.type;
+                    if (AppState.selectedTaskType === type) {
+                        // If clicking the same chip, deselect it
+                        clearTaskType();
+                    } else {
+                        selectTaskType(type);
+                    }
+                });
+            });
+            
+            // Star rating - Touch optimized - FIX #6
+            document.querySelectorAll('.star').forEach(star => {
+                // Touch events
+                star.addEventListener('touchstart', function(e) {
+                    e.preventDefault();
+                    AppState.selectedRating = parseInt(this.dataset.rating);
+                    updateStars();
+                    
+                    // Haptic feedback on mobile
+                    if (window.navigator.vibrate) {
+                        window.navigator.vibrate(10);
+                    }
+                });
+                
+                // Click for desktop
+                star.addEventListener('click', function() {
+                    AppState.selectedRating = parseInt(this.dataset.rating);
+                    updateStars();
+                });
+                
+                // Keyboard
+                star.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        AppState.selectedRating = parseInt(this.dataset.rating);
+                        updateStars();
+                    }
+                });
+            });
+        }
+
+        // ====================================
+        // INITIALIZATION
+        // ====================================
+        
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeApp);
+        } else {
+            initializeApp();
+        }
+        
+        // Save on exit
+        window.addEventListener('beforeunload', saveLocalRatings);
+    </script>
+</body>
+</html>
