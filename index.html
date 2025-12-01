@@ -159,6 +159,22 @@
     </style>
 </head>
 <body class="min-h-screen bg-slate-50">
+    <!-- Pull to Refresh Indicator -->
+    <div id="pullIndicator" class="fixed top-16 left-1/2 -translate-x-1/2 -translate-y-full bg-white px-4 py-2 rounded-full shadow-lg text-sm text-slate-600 opacity-0 transition-all duration-300 z-50">
+        <span id="pullText">↓ Pull to refresh</span>
+    </div>
+    
+    <style>
+        #pullIndicator.visible {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+        #pullIndicator.refreshing {
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            color: white;
+        }
+    </style>
+
     <!-- Decorative Background -->
     <div class="fixed inset-0 overflow-hidden pointer-events-none">
         <div class="absolute top-0 left-1/4 w-96 h-96 bg-indigo-200/30 rounded-full blur-3xl glow-animation"></div>
@@ -203,6 +219,38 @@
             <p class="text-lg sm:text-xl text-slate-500 max-w-2xl mx-auto mb-8 sm:mb-10 px-4">
                 Real reviews from real users. Discover which AI tools actually deliver results.
             </p>
+
+            <!-- Action Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 max-w-3xl mx-auto mb-10 sm:mb-12 px-4">
+                <!-- Search Card -->
+                <div class="card-hover bg-white rounded-2xl p-6 sm:p-8 text-center border border-slate-100 shadow-sm cursor-pointer" onclick="document.getElementById('searchInput').focus(); document.getElementById('searchInput').scrollIntoView({behavior: 'smooth', block: 'center'});">
+                    <div class="w-16 h-16 sm:w-20 sm:h-20 bg-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-indigo-200">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-8 h-8 sm:w-10 sm:h-10">
+                            <circle cx="11" cy="11" r="8"/>
+                            <path d="m21 21-4.3-4.3"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl sm:text-2xl font-bold text-slate-800 mb-2">Search AI Tools</h3>
+                    <p class="text-slate-500 text-sm sm:text-base mb-5">Find AI tools by category, task description, ratings, or price range with our intelligent search.</p>
+                    <button class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 sm:py-4 px-6 rounded-xl transition-all duration-200 btn-press shadow-md shadow-indigo-200">
+                        Start Searching
+                    </button>
+                </div>
+
+                <!-- Rate Card -->
+                <div class="card-hover bg-white rounded-2xl p-6 sm:p-8 text-center border border-slate-100 shadow-sm cursor-pointer" onclick="document.getElementById('ratingForm').scrollIntoView({behavior: 'smooth', block: 'start'});">
+                    <div class="w-16 h-16 sm:w-20 sm:h-20 bg-emerald-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-emerald-200">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-8 h-8 sm:w-10 sm:h-10">
+                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl sm:text-2xl font-bold text-slate-800 mb-2">Rate an AI Tool</h3>
+                    <p class="text-slate-500 text-sm sm:text-base mb-5">Share your experience and help others discover great AI tools through authentic reviews.</p>
+                    <button class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-semibold py-3 sm:py-4 px-6 rounded-xl transition-all duration-200 btn-press shadow-md shadow-emerald-200">
+                        Add Rating
+                    </button>
+                </div>
+            </div>
 
             <!-- Stats Bar - Glassmorphism -->
             <div class="max-w-3xl mx-auto relative px-4">
@@ -279,6 +327,18 @@
                     Search
                 </button>
             </form>
+            
+            <!-- Popular Tasks -->
+            <div class="mt-4">
+                <p class="text-sm text-slate-500 text-center mb-3">Popular searches:</p>
+                <div class="flex flex-wrap justify-center gap-2">
+                    <button onclick="searchForTask('write marketing copy')" class="px-3 py-1.5 bg-white border border-slate-200 rounded-full text-sm text-slate-600 hover:border-indigo-300 hover:bg-indigo-50 transition-all btn-press">✍️ Write copy</button>
+                    <button onclick="searchForTask('generate images')" class="px-3 py-1.5 bg-white border border-slate-200 rounded-full text-sm text-slate-600 hover:border-indigo-300 hover:bg-indigo-50 transition-all btn-press">🎨 Generate images</button>
+                    <button onclick="searchForTask('analyze data')" class="px-3 py-1.5 bg-white border border-slate-200 rounded-full text-sm text-slate-600 hover:border-indigo-300 hover:bg-indigo-50 transition-all btn-press">📊 Analyze data</button>
+                    <button onclick="searchForTask('write code')" class="px-3 py-1.5 bg-white border border-slate-200 rounded-full text-sm text-slate-600 hover:border-indigo-300 hover:bg-indigo-50 transition-all btn-press">💻 Write code</button>
+                    <button onclick="searchForTask('create presentation')" class="px-3 py-1.5 bg-white border border-slate-200 rounded-full text-sm text-slate-600 hover:border-indigo-300 hover:bg-indigo-50 transition-all btn-press">📽️ Presentations</button>
+                </div>
+            </div>
         </div>
 
         <!-- Search Results -->
@@ -527,7 +587,8 @@
             lastSubmitTime: 0,
             isMobile: /iPhone|iPad|iPod|Android/i.test(navigator.userAgent),
             isLoading: true,
-            captchaVerified: false
+            captchaVerified: false,
+            isPulling: false
         };
 
         // reCAPTCHA callbacks
@@ -577,6 +638,20 @@
         function initializeApp() {
             console.log('Initializing app...');
             
+            // Mobile viewport height handling
+            updateViewportHeight();
+            window.addEventListener('resize', updateViewportHeight);
+            window.addEventListener('orientationchange', () => {
+                setTimeout(updateViewportHeight, 100);
+            });
+            
+            // Mobile-specific adjustments
+            if (AppState.isMobile) {
+                document.body.classList.add('mobile');
+                setupPullToRefresh();
+                setupKeyboardHandling();
+            }
+            
             if (typeof firebase !== 'undefined') {
                 initializeFirebase();
             } else {
@@ -586,6 +661,87 @@
             setupEventListeners();
             updateCharCounter('taskDescription');
             updateCharCounter('userFeedback');
+        }
+
+        // Viewport height calculation for mobile
+        function updateViewportHeight() {
+            const vh = window.innerHeight * 0.01;
+            document.documentElement.style.setProperty('--vh', `${vh}px`);
+        }
+
+        // Pull to refresh for mobile
+        function setupPullToRefresh() {
+            let startY = 0;
+            let currentY = 0;
+            const pullIndicator = document.getElementById('pullIndicator');
+            const pullText = document.getElementById('pullText');
+            
+            if (!pullIndicator) return;
+            
+            document.addEventListener('touchstart', (e) => {
+                if (window.scrollY === 0) {
+                    startY = e.touches[0].pageY;
+                    AppState.isPulling = true;
+                }
+            }, { passive: true });
+            
+            document.addEventListener('touchmove', (e) => {
+                if (!AppState.isPulling || window.scrollY > 0) return;
+                
+                currentY = e.touches[0].pageY;
+                const pullDistance = currentY - startY;
+                
+                if (pullDistance > 0 && pullDistance < 150) {
+                    pullIndicator.classList.add('visible');
+                    
+                    if (pullDistance > 80) {
+                        pullText.textContent = '↑ Release to refresh';
+                    } else {
+                        pullText.textContent = '↓ Pull to refresh';
+                    }
+                }
+            }, { passive: true });
+            
+            document.addEventListener('touchend', () => {
+                const pullDistance = currentY - startY;
+                
+                if (AppState.isPulling && pullDistance > 80 && window.scrollY === 0) {
+                    pullIndicator.classList.add('refreshing');
+                    pullText.textContent = '⟳ Refreshing...';
+                    
+                    setTimeout(() => {
+                        location.reload();
+                    }, 500);
+                } else {
+                    pullIndicator.classList.remove('visible');
+                }
+                
+                AppState.isPulling = false;
+                startY = 0;
+                currentY = 0;
+            }, { passive: true });
+        }
+
+        // Keyboard handling for mobile
+        function setupKeyboardHandling() {
+            const inputs = document.querySelectorAll('input, textarea, select');
+            
+            inputs.forEach(input => {
+                input.addEventListener('focus', () => {
+                    setTimeout(() => {
+                        input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }, 300);
+                });
+            });
+
+            if (window.visualViewport) {
+                window.visualViewport.addEventListener('resize', () => {
+                    const activeEl = document.activeElement;
+                    if (activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA')) {
+                        activeEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                });
+            }
         }
 
         function initializeFirebase() {
@@ -769,6 +925,11 @@
                 displayResults(query, results);
                 lucide.createIcons();
             }, CONFIG.LIMITS.SEARCH_DEBOUNCE);
+        }
+
+        function searchForTask(task) {
+            document.getElementById('searchInput').value = task;
+            performSearch();
         }
 
         function formatDate(dateString) {
