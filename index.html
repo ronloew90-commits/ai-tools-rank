@@ -7,13 +7,12 @@
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
-
   gtag('config', 'G-X2W323M13Z');
 </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
     <meta name="description" content="Find the best AI tools for specific tasks based on real user reviews">
-    <meta name="theme-color" content="#6366f1">
+    <meta name="theme-color" content="#4f46e5">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <title>AI Tools Rank - Find the Best AI Tool for Your Task</title>
@@ -28,1401 +27,466 @@
     <!-- Google reCAPTCHA v2 -->
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
     
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        
         * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', sans-serif;
             -webkit-tap-highlight-color: transparent;
         }
-
-        :root {
-            --primary-color: #6366f1;
-            --secondary-color: #4f46e5;
-            --accent-color: #fbbf24;
-            --text-dark: #1f2937;
-            --text-light: #6b7280;
-            --bg-light: #f9fafb;
-            --border-color: #e5e7eb;
-            --success-color: #10b981;
-            --error-color: #ef4444;
-            --warning-color: #f59e0b;
-            --max-width: 1400px;
-            --mobile-padding: 1rem;
-            --desktop-padding: 2rem;
-            --safe-area-inset-top: env(safe-area-inset-top, 0px);
-            --safe-area-inset-bottom: env(safe-area-inset-bottom, 0px);
-            --safe-area-inset-left: env(safe-area-inset-left, 0px);
-            --safe-area-inset-right: env(safe-area-inset-right, 0px);
-            --vh: 1vh;
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
         }
-
-        /* FIX #1: Removed position:fixed from html - causes iOS scroll issues */
-        html {
-            height: 100%;
-            overflow-x: hidden;
+        
+        @keyframes pulse-glow {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.6; }
         }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            line-height: 1.6;
-            color: var(--text-dark);
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            min-height: calc(var(--vh, 1vh) * 100);
-            width: 100%;
-            overflow-x: hidden;
-            -webkit-overflow-scrolling: touch;
-            padding-top: var(--safe-area-inset-top);
-            padding-bottom: var(--safe-area-inset-bottom);
-            padding-left: var(--safe-area-inset-left);
-            padding-right: var(--safe-area-inset-right);
+        
+        .float-animation {
+            animation: float 6s ease-in-out infinite;
         }
-
-        /* Loading State */
-        .loading-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(255, 255, 255, 0.95);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
+        
+        .glow-animation {
+            animation: pulse-glow 3s ease-in-out infinite;
         }
-
-        .loading-overlay.show {
-            display: flex;
+        
+        .card-hover {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-
-        .spinner {
-            width: 50px;
-            height: 50px;
-            border: 3px solid var(--border-color);
-            border-top-color: var(--primary-color);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
+        
+        .card-hover:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px -12px rgba(99, 102, 241, 0.15);
         }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+        
+        .btn-press:active {
+            transform: scale(0.97);
         }
-
-        /* Skeleton Loading States - FIX #9 */
-        .skeleton {
-            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-            background-size: 200% 100%;
-            animation: skeleton-loading 1.5s infinite;
-            border-radius: 8px;
+        
+        .star-hover:hover {
+            transform: scale(1.15);
         }
-
-        @keyframes skeleton-loading {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
+        
+        .chip-selected {
+            background: linear-gradient(135deg, #4f46e5, #7c3aed) !important;
+            color: white !important;
+            border-color: transparent !important;
+            box-shadow: 0 4px 14px -3px rgba(99, 102, 241, 0.4);
         }
-
-        .skeleton-card {
-            height: 120px;
-            margin-bottom: 1rem;
-            border-radius: 12px;
+        
+        .glassmorphism {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
         }
-
-        .skeleton-stat {
-            height: 50px;
-            border-radius: 8px;
-        }
-
-        /* Header - Mobile Optimized */
-        header {
-            background: white;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            padding-top: var(--safe-area-inset-top);
-        }
-
-        .header-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0.75rem var(--mobile-padding);
-            max-width: var(--max-width);
-            margin: 0 auto;
-        }
-
-        .logo {
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: var(--primary-color);
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            cursor: pointer;
-            text-decoration: none;
-        }
-
-        .connection-status {
-            display: flex;
-            align-items: center;
-            gap: 0.25rem;
-            padding: 0.4rem 0.75rem;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            background: #d1fae5;
-            color: #065f46;
-        }
-
-        .status-disconnected {
-            background: #fee2e2;
-            color: #991b1b;
-        }
-
-        .status-warning {
-            background: #fed7aa;
-            color: #92400e;
-        }
-
-        /* Main Content - Mobile First */
-        .main-wrapper {
-            background: white;
-            margin: 1rem auto;
-            border-radius: 16px;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-            max-width: var(--max-width);
-            overflow: hidden;
-        }
-
-        /* Hero Section - Mobile Optimized */
-        .hero-section {
-            text-align: center;
-            padding: 1.5rem var(--mobile-padding);
-            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
-        }
-
-        .hero-title {
-            font-size: 1.75rem;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        
+        .gradient-text {
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            margin-bottom: 0.75rem;
-            line-height: 1.2;
         }
-
-        .hero-subtitle {
-            color: var(--text-light);
-            max-width: 600px;
-            margin: 0 auto 1.5rem;
-            font-size: 0.95rem;
-            line-height: 1.4;
-        }
-
-        /* Stats Bar - Mobile Grid */
-        .stats-bar {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 0.75rem;
-            padding: 0.75rem;
-            background: var(--bg-light);
-            border-radius: 12px;
-        }
-
-        /* Launch Banner */
-        .launch-banner {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 0.875rem 1rem;
-            border-radius: 12px;
-            text-align: center;
-            font-size: 0.9rem;
-            margin-bottom: 1rem;
-            line-height: 1.4;
-            animation: pulse-glow 2s ease-in-out infinite;
-        }
-
-        @keyframes pulse-glow {
-            0%, 100% { box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3); }
-            50% { box-shadow: 0 4px 20px rgba(102, 126, 234, 0.5); }
-        }
-
-        /* Action Cards */
-        .action-cards {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 1rem;
-            padding: 1.5rem var(--mobile-padding);
-            max-width: 900px;
-            margin: 0 auto;
-        }
-
-        @media (min-width: 600px) {
-            .action-cards {
-                grid-template-columns: 1fr 1fr;
-                gap: 1.5rem;
-                padding: 2rem var(--desktop-padding);
-            }
-        }
-
-        .action-card {
-            background: var(--bg-light);
-            border-radius: 16px;
-            padding: 1.5rem;
-            text-align: center;
-            transition: all 0.3s ease;
-            border: 2px solid transparent;
-            cursor: pointer;
-        }
-
-        .action-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-        }
-
-        .action-card:active {
-            transform: scale(0.98);
-        }
-
-        .action-card-icon {
-            width: 60px;
-            height: 60px;
-            border-radius: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 1rem;
-            font-size: 1.75rem;
-        }
-
-        .action-card-icon.search {
-            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
-        }
-
-        .action-card-icon.rate {
-            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
-        }
-
-        .action-card-title {
-            font-size: 1.25rem;
-            font-weight: 700;
-            color: var(--text-dark);
-            margin-bottom: 0.5rem;
-        }
-
-        .action-card-description {
-            font-size: 0.9rem;
-            color: var(--text-light);
-            line-height: 1.5;
-            margin-bottom: 1.25rem;
-        }
-
-        .action-card-btn {
-            display: inline-block;
-            width: 100%;
-            padding: 0.875rem 1.5rem;
-            border-radius: 12px;
-            font-size: 1rem;
-            font-weight: 600;
-            text-decoration: none;
-            transition: all 0.2s;
-            border: none;
-            cursor: pointer;
-        }
-
-        .action-card-btn.search {
-            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
-            color: white;
-        }
-
-        .action-card-btn.search:hover {
-            background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
-        }
-
-        .action-card-btn.rate {
-            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
-            color: white;
-        }
-
-        .action-card-btn.rate:hover {
-            background: linear-gradient(135deg, #047857 0%, #059669 100%);
-        }
-
-        /* reCAPTCHA Container */
-        .recaptcha-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin: 1.5rem 0;
-        }
-
-        .g-recaptcha {
-            transform-origin: center;
-        }
-
-        /* Scale reCAPTCHA on very small screens */
-        @media (max-width: 340px) {
-            .g-recaptcha {
-                transform: scale(0.9);
-            }
-        }
-
-        .captcha-error {
-            color: var(--error-color);
-            font-size: 0.85rem;
-            margin-top: 0.5rem;
-            display: none;
-        }
-
-        .captcha-error.show {
-            display: block;
-        }
-
-        /* Task Type Chips */
-        .task-type-container {
-            margin-top: 0.5rem;
-        }
-
-        .task-type-chips {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-            margin-top: 0.5rem;
-        }
-
-        .task-type-chip {
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            border: 1px solid var(--border-color);
-            background: white;
-            color: var(--text-dark);
-            cursor: pointer;
-            transition: all 0.2s;
-            user-select: none;
-        }
-
-        .task-type-chip:hover {
-            border-color: var(--primary-color);
-            background: rgba(99, 102, 241, 0.05);
-        }
-
-        .task-type-chip.selected {
-            background: var(--primary-color);
-            color: white;
-            border-color: var(--primary-color);
-        }
-
-        .task-type-chip:active {
-            transform: scale(0.95);
-        }
-
-        .clear-task-type {
-            font-size: 0.8rem;
-            color: var(--text-light);
-            cursor: pointer;
-            margin-left: 0.5rem;
-            text-decoration: underline;
-        }
-
-        .clear-task-type:hover {
-            color: var(--primary-color);
-        }
-
-        .stat-item {
-            text-align: center;
-            padding: 0.5rem;
-        }
-
-        .stat-number {
-            font-size: 1.25rem;
-            font-weight: bold;
-            color: var(--primary-color);
-        }
-
-        .stat-label {
-            font-size: 0.75rem;
-            color: var(--text-light);
-        }
-
-        /* Search Section - Mobile Optimized */
-        .search-container {
-            max-width: 800px;
-            margin: 1.5rem auto;
-            padding: 0 var(--mobile-padding);
-        }
-
-        .search-form {
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
-        }
-
-        .search-input {
-            width: 100%;
-            padding: 1rem;
-            font-size: 16px; /* Prevents zoom on iOS */
-            border: 2px solid var(--border-color);
-            border-radius: 12px;
-            outline: none;
-            transition: border-color 0.3s;
-            -webkit-appearance: none;
-            appearance: none;
-        }
-
-        .search-input:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
-        }
-
-        .search-btn {
-            background: var(--primary-color);
-            color: white;
-            border: none;
-            padding: 1rem;
-            border-radius: 12px;
-            cursor: pointer;
-            font-size: 1rem;
-            font-weight: 600;
-            transition: all 0.3s;
-            touch-action: manipulation;
-            min-height: 48px; /* Touch target size */
-        }
-
-        .search-btn:active {
-            transform: scale(0.98);
-        }
-
-        .search-btn:hover:not(:disabled) {
-            background: var(--secondary-color);
-        }
-
-        .search-btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-
-        /* Popular Tasks - Mobile Scrollable with scroll indicator - FIX #3 */
-        .popular-tasks-wrapper {
-            position: relative;
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-            margin: 0 -1rem;
-            padding: 0 1rem;
-            scrollbar-width: none; /* Firefox */
-            -ms-overflow-style: none; /* IE/Edge */
-        }
-
-        .popular-tasks-wrapper::-webkit-scrollbar {
-            display: none; /* Chrome/Safari */
-        }
-
-        /* Scroll indicator gradient */
-        .popular-tasks-container {
-            position: relative;
-        }
-
-        .popular-tasks-container::after {
-            content: '';
-            position: absolute;
-            right: 0;
-            top: 0;
-            bottom: 0;
-            width: 40px;
-            background: linear-gradient(to left, white 0%, transparent 100%);
-            pointer-events: none;
-            opacity: 1;
-            transition: opacity 0.3s;
-        }
-
-        .popular-tasks-container.scrolled-end::after {
-            opacity: 0;
-        }
-
-        /* Scroll hint text */
-        .scroll-hint {
-            text-align: center;
-            font-size: 0.7rem;
-            color: var(--text-light);
-            margin-top: 0.25rem;
-            opacity: 0.7;
-        }
-
-        .popular-tasks {
-            display: flex;
-            gap: 0.5rem;
-            padding: 0.5rem 0;
-            white-space: nowrap;
-            /* FIX #8: Scroll snap for native feel */
-            scroll-snap-type: x proximity;
-        }
-
-        .task-chip {
-            flex-shrink: 0;
-            background: var(--bg-light);
-            padding: 0.6rem 1rem;
-            border-radius: 20px;
-            font-size: 0.875rem;
-            color: var(--text-dark);
-            cursor: pointer;
-            transition: all 0.3s;
-            border: 1px solid transparent;
-            touch-action: manipulation;
-            min-height: 40px;
-            display: inline-flex;
-            align-items: center;
-            scroll-snap-align: start;
-        }
-
-        .task-chip:active {
-            transform: scale(0.95);
-            background: white;
-            border-color: var(--primary-color);
-        }
-
-        /* Search Results - Mobile Optimized - FIX #4 */
-        .search-results {
-            padding: var(--mobile-padding);
-            min-height: 200px;
-        }
-
-        .results-container {
-            /* FIX #4: Dynamic height instead of fixed */
-            max-height: calc(100vh - 400px);
-            max-height: calc(var(--vh, 1vh) * 100 - 400px);
-            min-height: 200px;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
-        }
-
-        .task-result-card {
-            background: white;
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 1rem;
-            margin-bottom: 1rem;
-            transition: all 0.3s;
-            animation: slideIn 0.3s ease-out;
-        }
-
-        .task-result-header {
-            display: flex;
-            align-items: start;
-            gap: 0.75rem;
-            margin-bottom: 0.75rem;
-        }
-
-        .rank-badge {
-            font-size: 1.5rem;
-            flex-shrink: 0;
-        }
-
-        .task-result-content {
-            flex: 1;
-            min-width: 0; /* Prevent overflow */
-        }
-
-        .task-result-title {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: var(--text-dark);
-            margin-bottom: 0.5rem;
-            word-wrap: break-word;
-        }
-
-        .task-rating {
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            gap: 0.5rem;
-            margin-bottom: 0.75rem;
-            font-size: 0.9rem;
-        }
-
-        .stars {
-            color: var(--accent-color);
-            font-size: 1.1rem;
-        }
-
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .task-result-card.gold {
-            border: 2px solid #fbbf24;
-            background: linear-gradient(135deg, rgba(251, 191, 36, 0.05) 0%, rgba(251, 191, 36, 0.02) 100%);
-        }
-
-        .task-result-card.silver {
-            border: 2px solid #cbd5e1;
-            background: linear-gradient(135deg, rgba(203, 213, 225, 0.05) 0%, rgba(203, 213, 225, 0.02) 100%);
-        }
-
-        .task-result-card.bronze {
-            border: 2px solid #f59e0b;
-            background: linear-gradient(135deg, rgba(245, 158, 11, 0.05) 0%, rgba(245, 158, 11, 0.02) 100%);
-        }
-
-        .feedback-box {
-            margin: 0.5rem 0;
-            padding: 0.75rem;
-            background: var(--bg-light);
-            border-radius: 8px;
-            border-left: 3px solid var(--primary-color);
-            font-size: 0.9rem;
-        }
-
-        .feedback-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .feedback-task {
-            font-weight: 600;
-            color: var(--text-dark);
-        }
-
-        .feedback-date {
-            font-size: 0.75rem;
-            color: var(--text-light);
-            white-space: nowrap;
-        }
-
-        .feedback-text {
-            font-style: italic;
-            color: var(--text-dark);
-            word-wrap: break-word;
-            overflow-wrap: break-word;
-            line-height: 1.4;
-            margin-bottom: 0.5rem;
-        }
-
-        .feedback-rating {
-            color: var(--accent-color);
-            font-size: 1rem;
-            letter-spacing: 2px;
-        }
-
-        .feedback-type {
-            display: inline-block;
-            font-size: 0.75rem;
-            color: var(--text-light);
-            background: var(--bg-light);
-            padding: 0.2rem 0.5rem;
+        
+        .highlight-text {
+            background: #fef08a;
+            padding: 0 4px;
             border-radius: 4px;
-            margin-top: 0.5rem;
         }
-
-        /* Expandable reviews */
+        
+        /* Reviews expandable */
         .reviews-expandable {
             max-height: 0;
             overflow: hidden;
             transition: max-height 0.3s ease-out;
         }
-
+        
         .reviews-expandable.expanded {
             max-height: 2000px;
             transition: max-height 0.5s ease-in;
         }
-
-        .view-reviews-btn {
-            display: block;
-            width: 100%;
-            padding: 0.75rem;
-            margin-top: 0.75rem;
-            background: transparent;
-            border: 1px dashed var(--border-color);
-            border-radius: 8px;
-            color: var(--primary-color);
-            font-size: 0.875rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
-            text-align: center;
-        }
-
-        .view-reviews-btn:hover {
-            background: var(--bg-light);
-            border-color: var(--primary-color);
-        }
-
-        .view-reviews-btn:active {
-            transform: scale(0.98);
-        }
-
-        /* Rating Form - Mobile Optimized */
-        .rating-container {
-            max-width: 600px;
-            margin: 1.5rem auto;
-            padding: var(--mobile-padding);
-            /* FIX #7: Extra bottom padding for keyboard */
-            padding-bottom: calc(var(--mobile-padding) + 100px);
-        }
-
-        .rating-container h2 {
-            text-align: center;
-            margin-bottom: 1.5rem;
-            font-size: 1.5rem;
-        }
-
-        .form-group {
-            margin-bottom: 1.25rem;
-        }
-
-        .form-group label {
-            display: block;
-            font-weight: 500;
-            margin-bottom: 0.5rem;
-            color: var(--text-dark);
-            font-size: 0.95rem;
-        }
-
-        .form-group label .required {
-            color: var(--error-color);
-        }
-
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-            width: 100%;
-            padding: 0.875rem;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            font-size: 16px; /* Prevents zoom on iOS */
-            background: white;
-            transition: border-color 0.3s;
-            -webkit-appearance: none;
-            appearance: none;
-        }
-
-        /* FIX #2: Custom select arrow for iOS */
-        .form-group select {
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 1rem center;
-            padding-right: 2.5rem;
-        }
-
-        .form-group input:focus,
-        .form-group select:focus,
-        .form-group textarea:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
-        }
-
-        textarea {
-            min-height: 100px;
-            resize: vertical;
-            font-family: inherit;
-        }
-
-        .char-counter {
-            text-align: right;
-            font-size: 0.75rem;
-            color: var(--text-light);
-            margin-top: 0.25rem;
-        }
-
-        .char-counter.warning {
-            color: var(--warning-color);
-        }
-
-        .char-counter.error {
-            color: var(--error-color);
-        }
-
-        /* Star Rating - Mobile Touch Optimized - FIX #6 */
-        .star-rating {
-            display: flex;
-            gap: 0.5rem; /* Increased gap */
-            font-size: 2.5rem;
-            justify-content: center;
-            padding: 0.75rem 0;
-            touch-action: manipulation;
-        }
-
-        .star {
-            cursor: pointer;
-            color: #ddd;
-            transition: all 0.2s;
-            -webkit-tap-highlight-color: transparent;
-            user-select: none;
-            padding: 0.5rem; /* Increased padding */
-            min-width: 52px; /* Slightly larger */
-            min-height: 52px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%; /* Round touch area */
-            background: transparent;
-        }
-
-        .star:active {
-            transform: scale(1.2);
-            background: rgba(251, 191, 36, 0.1);
-        }
-
-        .star.active {
-            color: var(--accent-color);
-        }
-
-        /* Messages - Mobile Visible */
+        
+        /* Messages */
         .message {
-            padding: 0.875rem;
-            border-radius: 8px;
-            margin-bottom: 1rem;
             display: none;
             animation: slideIn 0.3s ease-out;
-            font-size: 0.9rem;
-            line-height: 1.4;
         }
-
+        
         .message.show {
-            display: block;
-        }
-
-        .success-message {
-            background: #d1fae5;
-            color: #065f46;
-            border: 1px solid #10b981;
-        }
-
-        .error-message {
-            background: #fee2e2;
-            color: #991b1b;
-            border: 1px solid #ef4444;
-        }
-
-        .warning-message {
-            background: #fed7aa;
-            color: #92400e;
-            border: 1px solid #f59e0b;
-        }
-
-        /* Buttons - Touch Optimized */
-        .btn-primary {
-            background: var(--primary-color);
-            color: white;
-            border: none;
-            padding: 1rem;
-            border-radius: 12px;
-            font-size: 1rem;
-            cursor: pointer;
-            font-weight: 600;
-            width: 100%;
-            transition: all 0.3s;
-            min-height: 48px;
-            touch-action: manipulation;
-        }
-
-        .btn-primary:active {
-            transform: scale(0.98);
-        }
-
-        .btn-primary:hover:not(:disabled) {
-            background: var(--secondary-color);
-        }
-
-        .btn-primary:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-
-        /* FIX #10: Footer */
-        .footer {
-            text-align: center;
-            padding: 1.5rem var(--mobile-padding);
-            background: var(--bg-light);
-            border-top: 1px solid var(--border-color);
-            margin-top: 2rem;
-        }
-
-        .footer-text {
-            font-size: 0.8rem;
-            color: var(--text-light);
-        }
-
-        .footer-links {
-            margin-top: 0.5rem;
             display: flex;
-            justify-content: center;
-            gap: 1rem;
-            flex-wrap: wrap;
         }
-
-        .footer-link {
-            color: var(--primary-color);
-            text-decoration: none;
-            font-size: 0.8rem;
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-
-        .footer-link:hover {
-            text-decoration: underline;
+        
+        /* Skeleton loading */
+        .skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: skeleton-loading 1.5s infinite;
+            border-radius: 16px;
         }
-
-        /* Pull to refresh indicator - FIX #5 */
-        .pull-indicator {
-            position: fixed;
-            top: 60px;
-            left: 50%;
-            transform: translateX(-50%) translateY(-100%);
-            background: white;
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            font-size: 0.8rem;
-            color: var(--text-light);
-            opacity: 0;
-            transition: all 0.3s;
-            z-index: 99;
+        
+        @keyframes skeleton-loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
         }
-
-        .pull-indicator.visible {
-            opacity: 1;
-            transform: translateX(-50%) translateY(0);
+        
+        .skeleton-card {
+            height: 180px;
+            margin-bottom: 1rem;
         }
-
-        .pull-indicator.refreshing {
-            background: var(--primary-color);
-            color: white;
-        }
-
-        /* Tablet Styles */
-        @media (min-width: 768px) {
-            :root {
-                --mobile-padding: 1.5rem;
+        
+        /* Mobile adjustments */
+        @media (max-width: 640px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
             }
-
-            .header-content {
-                padding: 1rem var(--desktop-padding);
-            }
-
-            .logo {
-                font-size: 1.5rem;
-            }
-
-            .connection-status {
-                font-size: 0.875rem;
-                padding: 0.5rem 1rem;
-            }
-
-            .hero-section {
-                padding: 2rem var(--desktop-padding);
-            }
-
-            .hero-title {
-                font-size: 2.25rem;
-            }
-
-            .hero-subtitle {
-                font-size: 1.1rem;
-            }
-
-            .stats-bar {
-                grid-template-columns: repeat(4, 1fr);
-                gap: 1rem;
-                padding: 1rem;
-            }
-
-            .stat-number {
-                font-size: 1.5rem;
-            }
-
-            .stat-label {
-                font-size: 0.875rem;
-            }
-
-            .search-form {
-                flex-direction: row;
-                position: relative;
-            }
-
-            .search-input {
-                padding-right: 120px;
-            }
-
-            .search-btn {
-                position: absolute;
-                right: 4px;
-                top: 50%;
-                transform: translateY(-50%);
-                width: auto;
-                padding: 0.75rem 1.5rem;
-            }
-
-            .popular-tasks-wrapper {
-                overflow-x: visible;
-                margin: 0;
-                padding: 0;
-            }
-
-            .popular-tasks-container::after {
-                display: none;
-            }
-
-            .scroll-hint {
-                display: none;
-            }
-
-            .popular-tasks {
-                flex-wrap: wrap;
-                justify-content: center;
-            }
-
-            .task-result-card {
-                padding: 1.5rem;
-            }
-
-            .rating-container {
-                padding: var(--desktop-padding);
-                padding-bottom: var(--desktop-padding);
-            }
-
-            .star-rating {
-                gap: 0.75rem;
-            }
-        }
-
-        /* Desktop Styles */
-        @media (min-width: 1024px) {
-            .main-wrapper {
-                margin: 2rem auto;
-            }
-
-            .hero-section {
-                padding: 3rem var(--desktop-padding);
-            }
-
-            .hero-title {
-                font-size: 2.5rem;
-            }
-
-            .hero-subtitle {
-                font-size: 1.2rem;
-                margin-bottom: 2rem;
-            }
-
-            .search-container {
-                padding: 0 var(--desktop-padding);
-                margin: 2rem auto;
-            }
-
-            .search-results {
-                padding: var(--desktop-padding);
-            }
-
-            .results-container {
-                max-height: 600px;
-            }
-
-            .task-result-header {
-                gap: 1rem;
-            }
-
-            .rank-badge {
-                font-size: 2rem;
-            }
-        }
-
-        /* Landscape Mobile Adjustments */
-        @media (max-height: 600px) and (orientation: landscape) {
-            .hero-section {
-                padding: 1rem var(--mobile-padding);
-            }
-
-            .hero-title {
-                font-size: 1.5rem;
-            }
-
-            .hero-subtitle {
-                display: none;
-            }
-
-            .stats-bar {
-                grid-template-columns: repeat(4, 1fr);
-            }
-        }
-
-        /* Accessibility */
-        .sr-only {
-            position: absolute;
-            width: 1px;
-            height: 1px;
-            padding: 0;
-            margin: -1px;
-            overflow: hidden;
-            clip: rect(0, 0, 0, 0);
-            white-space: nowrap;
-            border: 0;
-        }
-
-        /* Focus styles for keyboard navigation */
-        *:focus-visible {
-            outline: 2px solid var(--primary-color);
-            outline-offset: 2px;
-        }
-
-        /* Print styles */
-        @media print {
-            header, .search-container, .rating-container, .footer {
+            .stats-divider:nth-child(2)::after {
                 display: none;
             }
         }
     </style>
 </head>
-<body>
-    <!-- Loading Overlay -->
-    <div class="loading-overlay" id="loadingOverlay">
-        <div class="spinner"></div>
-    </div>
-
-    <!-- Pull to Refresh Indicator - FIX #5 -->
-    <div class="pull-indicator" id="pullIndicator">
-        <span id="pullText">↓ Pull to refresh</span>
+<body class="min-h-screen bg-slate-50">
+    <!-- Decorative Background -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none">
+        <div class="absolute top-0 left-1/4 w-96 h-96 bg-indigo-200/30 rounded-full blur-3xl glow-animation"></div>
+        <div class="absolute top-1/3 right-1/4 w-80 h-80 bg-violet-200/30 rounded-full blur-3xl glow-animation" style="animation-delay: 1s;"></div>
+        <div class="absolute bottom-1/4 left-1/3 w-72 h-72 bg-pink-200/20 rounded-full blur-3xl glow-animation" style="animation-delay: 2s;"></div>
     </div>
 
     <!-- Header -->
-    <header role="banner">
-        <div class="header-content">
-            <a href="#" class="logo" onclick="location.reload(); return false;">
-                <span aria-label="Star emoji">⭐</span> AI Tools Rank
+    <header class="relative border-b border-slate-200/50 bg-white/80 backdrop-blur-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
+            <a href="#" onclick="location.reload(); return false;" class="flex items-center gap-3">
+                <div class="bg-gradient-to-br from-indigo-600 to-violet-600 p-2.5 rounded-xl shadow-lg shadow-indigo-200">
+                    <i data-lucide="bar-chart-3" class="w-5 h-5 sm:w-6 sm:h-6 text-white"></i>
+                </div>
+                <span class="text-lg sm:text-xl font-bold text-slate-800">AI Tools Rank</span>
             </a>
-            <div id="connectionStatus" class="connection-status" role="status" aria-live="polite">
+            <div id="connectionStatus" class="flex items-center gap-1.5 bg-emerald-100 text-emerald-700 px-3 py-1.5 rounded-full text-sm font-medium">
+                <span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
                 <span id="statusText">Loading...</span>
             </div>
         </div>
     </header>
 
     <!-- Main Content -->
-    <main class="main-wrapper" role="main">
+    <main class="relative max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+        
         <!-- Hero Section -->
-        <section class="hero-section">
-            <h1 class="hero-title">Find the Best AI Tool for Your Task</h1>
-            <p class="hero-subtitle">
-                Find the best AI tool for your task — based on real user results.
-            </p>
+        <div class="text-center mb-10 sm:mb-12">
+            <!-- Badge -->
+            <div class="inline-flex items-center gap-2 bg-indigo-100 text-indigo-700 px-4 py-2 rounded-full text-sm font-medium mb-6">
+                <i data-lucide="sparkles" class="w-4 h-4"></i>
+                Crowd-sourced AI Tool Rankings
+            </div>
             
-            <div class="launch-banner" id="launchBanner">
-                🚀 <strong>Just launched!</strong> Help us build the first crowd-sourced AI tool rankings — your ratings matter!
-            </div>
+            <!-- Title -->
+            <h1 class="text-3xl sm:text-5xl md:text-6xl font-extrabold text-slate-800 mb-4 tracking-tight">
+                Find the <span class="gradient-text">Best AI Tool</span>
+                <br class="hidden sm:block">for Your Task
+            </h1>
+            
+            <!-- Subtitle -->
+            <p class="text-lg sm:text-xl text-slate-500 max-w-2xl mx-auto mb-8 sm:mb-10 px-4">
+                Real reviews from real users. Discover which AI tools actually deliver results.
+            </p>
 
-            <div class="stats-bar" role="region" aria-label="Statistics" id="statsBar">
-                <div class="stat-item">
-                    <div class="stat-number" id="toolCount" aria-live="polite">-</div>
-                    <div class="stat-label">Tools</div>
+            <!-- Stats Bar - Glassmorphism -->
+            <div class="max-w-3xl mx-auto relative px-4">
+                <div class="glassmorphism border border-white/50 rounded-2xl sm:rounded-3xl shadow-xl shadow-slate-200/50 p-2">
+                    <div class="grid grid-cols-2 sm:grid-cols-4 stats-grid">
+                        <div class="flex flex-col items-center py-3 sm:py-4 px-2 sm:px-6 group cursor-default stats-divider relative">
+                            <div class="text-indigo-600 mb-1 sm:mb-2 transform transition-transform group-hover:scale-110">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 sm:w-7 sm:h-7">
+                                    <path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z"/>
+                                    <path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65"/>
+                                    <path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65"/>
+                                </svg>
+                            </div>
+                            <div class="text-xl sm:text-2xl font-bold text-slate-800" id="toolCount">-</div>
+                            <div class="text-xs text-slate-500 uppercase tracking-wider">Tools</div>
+                            <div class="absolute right-0 top-1/4 h-1/2 w-px bg-slate-200/50 hidden sm:block"></div>
+                        </div>
+                        <div class="flex flex-col items-center py-3 sm:py-4 px-2 sm:px-6 group cursor-default stats-divider relative">
+                            <div class="text-emerald-600 mb-1 sm:mb-2 transform transition-transform group-hover:scale-110">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 sm:w-7 sm:h-7">
+                                    <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/>
+                                </svg>
+                            </div>
+                            <div class="text-xl sm:text-2xl font-bold text-slate-800" id="ratingCount">-</div>
+                            <div class="text-xs text-slate-500 uppercase tracking-wider">Reviews</div>
+                            <div class="absolute right-0 top-1/4 h-1/2 w-px bg-slate-200/50 hidden sm:block"></div>
+                        </div>
+                        <div class="flex flex-col items-center py-3 sm:py-4 px-2 sm:px-6 group cursor-default stats-divider relative">
+                            <div class="text-violet-600 mb-1 sm:mb-2 transform transition-transform group-hover:scale-110">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 sm:w-7 sm:h-7">
+                                    <line x1="18" x2="18" y1="20" y2="10"/>
+                                    <line x1="12" x2="12" y1="20" y2="4"/>
+                                    <line x1="6" x2="6" y1="20" y2="14"/>
+                                </svg>
+                            </div>
+                            <div class="text-xl sm:text-2xl font-bold text-slate-800" id="taskCount">-</div>
+                            <div class="text-xs text-slate-500 uppercase tracking-wider">Tasks</div>
+                            <div class="absolute right-0 top-1/4 h-1/2 w-px bg-slate-200/50 hidden sm:block"></div>
+                        </div>
+                        <div class="flex flex-col items-center py-3 sm:py-4 px-2 sm:px-6 group cursor-default">
+                            <div class="text-amber-500 mb-1 sm:mb-2 transform transition-transform group-hover:scale-110">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 sm:w-7 sm:h-7">
+                                    <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/>
+                                    <polyline points="16 7 22 7 22 13"/>
+                                </svg>
+                            </div>
+                            <div class="text-xl sm:text-2xl font-bold text-slate-800" id="avgRating">-</div>
+                            <div class="text-xs text-slate-500 uppercase tracking-wider">Avg Rating</div>
+                        </div>
+                    </div>
                 </div>
-                <div class="stat-item">
-                    <div class="stat-number" id="ratingCount" aria-live="polite">-</div>
-                    <div class="stat-label">Reviews</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-number" id="taskCount" aria-live="polite">-</div>
-                    <div class="stat-label">Tasks</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-number" id="avgRating" aria-live="polite">-</div>
-                    <div class="stat-label">Avg ⭐</div>
-                </div>
+                <!-- Decorative gradient blur -->
+                <div class="absolute -inset-4 bg-gradient-to-r from-indigo-500/20 via-purple-500/20 to-pink-500/20 rounded-3xl blur-2xl -z-10"></div>
             </div>
-        </section>
+        </div>
 
-        <!-- Action Cards -->
-        <section class="action-cards">
-            <div class="action-card" onclick="document.getElementById('searchInput').focus(); document.getElementById('searchInput').scrollIntoView({behavior: 'smooth', block: 'center'});">
-                <div class="action-card-icon search">
-                    🔍
-                </div>
-                <h3 class="action-card-title">Search AI Tools</h3>
-                <p class="action-card-description">Find AI tools by category, task description, ratings, or price range with our intelligent search.</p>
-                <button class="action-card-btn search" type="button">Start Searching</button>
-            </div>
-
-            <div class="action-card" onclick="document.getElementById('ratingForm').scrollIntoView({behavior: 'smooth', block: 'start'});">
-                <div class="action-card-icon rate">
-                    ⭐
-                </div>
-                <h3 class="action-card-title">Rate an AI Tool</h3>
-                <p class="action-card-description">Share your experience and help others discover great AI tools through authentic reviews.</p>
-                <button class="action-card-btn rate" type="button">Add Rating</button>
-            </div>
-        </section>
-
-        <!-- Search Section -->
-        <section class="search-container" role="search">
-            <form class="search-form" onsubmit="performSearch(event); return false;">
-                <label for="searchInput" class="sr-only">Search for a task</label>
-                <input type="text" 
-                       id="searchInput" 
-                       class="search-input" 
-                       placeholder="What task do you need to do?"
-                       maxlength="200"
-                       autocomplete="off"
-                       spellcheck="true">
-                <button type="submit" class="search-btn" id="searchBtn">
-                    <span id="searchBtnText">Search</span>
+        <!-- Search Bar -->
+        <div class="relative max-w-2xl mx-auto mb-10 sm:mb-12 px-4">
+            <form onsubmit="performSearch(event); return false;" class="relative">
+                <i data-lucide="search" class="absolute left-4 sm:left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400"></i>
+                <input
+                    type="text"
+                    id="searchInput"
+                    placeholder="What task do you need help with?"
+                    maxlength="200"
+                    autocomplete="off"
+                    class="w-full pl-12 sm:pl-14 pr-24 sm:pr-32 py-4 sm:py-5 rounded-xl sm:rounded-2xl border border-slate-200 shadow-sm focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 transition-all outline-none text-slate-800 placeholder:text-slate-400 text-base sm:text-lg"
+                >
+                <button
+                    type="submit"
+                    id="searchBtn"
+                    class="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg sm:rounded-xl transition-all duration-200 btn-press shadow-md shadow-indigo-200"
+                >
+                    Search
                 </button>
             </form>
-        </section>
+        </div>
 
         <!-- Search Results -->
-        <section class="search-results" role="region" aria-label="Search results">
-            <div id="searchResults" class="results-container" aria-live="polite">
-                <div style="text-align: center; color: var(--text-light); padding: 2rem;">
-                    <p>Search for a task to find the best AI tools</p>
-                    <p style="margin-top: 0.5rem; font-size: 0.9rem;">Or tap a popular task above</p>
+        <div id="resultsSection" class="mb-12 sm:mb-16 px-4">
+            <div id="searchResults">
+                <div class="text-center py-8 text-slate-500">
+                    <i data-lucide="search" class="w-12 h-12 mx-auto mb-4 text-slate-300"></i>
+                    <p class="text-lg">Search for a task to find the best AI tools</p>
+                    <p class="text-sm mt-2">Try "write marketing copy" or "generate images"</p>
                 </div>
             </div>
-        </section>
+        </div>
 
-        <!-- Rating Form -->
-        <section class="rating-container" role="form" aria-label="Rate an AI tool">
-            <h2>Rate an AI Tool</h2>
-            
-            <div class="message success-message" id="successMessage" role="alert">
-                ✅ <span id="successText">Rating saved!</span>
-            </div>
-            
-            <div class="message error-message" id="errorMessage" role="alert">
-                ❌ <span id="errorText">Something went wrong</span>
-            </div>
-            
-            <div class="message warning-message" id="warningMessage" role="alert">
-                ⚠️ <span id="warningText">Please check your input</span>
-            </div>
-
-            <form id="ratingForm" novalidate>
-                <div class="form-group">
-                    <label for="toolName">
-                        Tool Name <span class="required" aria-label="required">*</span>
-                    </label>
-                    <input type="text" 
-                           id="toolName" 
-                           required 
-                           placeholder="e.g., ChatGPT"
-                           maxlength="50"
-                           autocomplete="off"
-                           aria-required="true">
-                </div>
-
-                <div class="form-group">
-                    <label for="toolWebsite">Website (optional)</label>
-                    <input type="url" 
-                           id="toolWebsite" 
-                           placeholder="https://example.com"
-                           maxlength="200"
-                           autocomplete="url">
-                </div>
-
-                <div class="form-group">
-                    <label for="taskDescription">
-                        Task Used For <span class="required">*</span>
-                    </label>
-                    <textarea id="taskDescription" 
-                              required 
-                              placeholder="What did you use it for?"
-                              maxlength="200"
-                              aria-required="true"></textarea>
-                    <div class="char-counter" id="taskCounter">0/200</div>
-                </div>
-
-                <div class="form-group">
-                    <label>Task Type <span style="color: var(--text-light); font-weight: normal;">(optional)</span></label>
-                    <div class="task-type-container">
-                        <div class="task-type-chips" id="taskTypeChips">
-                            <span class="task-type-chip" data-type="Writing">✍️ Writing</span>
-                            <span class="task-type-chip" data-type="Image generation">🎨 Image generation</span>
-                            <span class="task-type-chip" data-type="Data analysis">📊 Data analysis</span>
-                            <span class="task-type-chip" data-type="Coding">💻 Coding</span>
-                            <span class="task-type-chip" data-type="Research">🔬 Research</span>
-                            <span class="task-type-chip" data-type="Planning">📋 Planning</span>
-                            <span class="task-type-chip" data-type="Marketing">📢 Marketing</span>
-                            <span class="task-type-chip" data-type="Design">🎯 Design</span>
-                            <span class="task-type-chip" data-type="Automation">⚙️ Automation</span>
-                            <span class="task-type-chip" data-type="Audio/Video">🎬 Audio/Video</span>
-                            <span class="task-type-chip" data-type="Translation">🌍 Translation</span>
-                            <span class="task-type-chip" data-type="Other">📁 Other</span>
+        <!-- Rate a Tool Form -->
+        <div class="max-w-2xl mx-auto px-4">
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+                <!-- Header -->
+                <div class="bg-gradient-to-r from-indigo-600 to-violet-600 px-5 sm:px-6 py-5">
+                    <div class="flex items-center gap-3">
+                        <div class="bg-white/20 p-2.5 rounded-xl">
+                            <i data-lucide="sparkles" class="w-5 h-5 sm:w-6 sm:h-6 text-white"></i>
                         </div>
-                        <span class="clear-task-type" id="clearTaskType" style="display: none;" onclick="clearTaskType()">Clear selection</span>
+                        <div>
+                            <h2 class="text-lg sm:text-xl font-bold text-white">Rate an AI Tool</h2>
+                            <p class="text-indigo-100 text-sm">Share your experience and help others</p>
+                        </div>
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <label for="userFeedback">
-                        Your Feedback <span class="required">*</span>
-                    </label>
-                    <textarea id="userFeedback" 
-                              required 
-                              placeholder="How was your experience?"
-                              maxlength="500"
-                              aria-required="true"></textarea>
-                    <div class="char-counter" id="feedbackCounter">0/500</div>
-                </div>
-
-                <div class="form-group">
-                    <label for="toolPrice">Pricing</label>
-                    <select id="toolPrice" aria-label="Select pricing">
-                        <option value="">Select...</option>
-                        <option value="Free">Free</option>
-                        <option value="Free with limits">Free (limited)</option>
-                        <option value="$1-10/month">$1-10/mo</option>
-                        <option value="$11-20/month">$11-20/mo</option>
-                        <option value="$21-50/month">$21-50/mo</option>
-                        <option value="$50+/month">$50+/mo</option>
-                        <option value="Usage-based">Usage-based</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label>Rating <span class="required">*</span></label>
-                    <div class="star-rating" id="starRating" role="radiogroup" aria-label="Rating">
-                        <span class="star" data-rating="1" role="radio" aria-checked="false" tabindex="0">★</span>
-                        <span class="star" data-rating="2" role="radio" aria-checked="false" tabindex="0">★</span>
-                        <span class="star" data-rating="3" role="radio" aria-checked="false" tabindex="0">★</span>
-                        <span class="star" data-rating="4" role="radio" aria-checked="false" tabindex="0">★</span>
-                        <span class="star" data-rating="5" role="radio" aria-checked="false" tabindex="0">★</span>
+                <!-- Form -->
+                <form id="ratingForm" class="p-5 sm:p-6 space-y-5 sm:space-y-6" novalidate>
+                    <!-- Messages -->
+                    <div class="message items-center gap-2 p-4 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200" id="successMessage">
+                        <i data-lucide="check-circle" class="w-5 h-5"></i>
+                        <span id="successText">Rating saved!</span>
                     </div>
-                </div>
+                    
+                    <div class="message items-center gap-2 p-4 rounded-xl bg-red-50 text-red-700 border border-red-200" id="errorMessage">
+                        <i data-lucide="alert-circle" class="w-5 h-5"></i>
+                        <span id="errorText">Something went wrong</span>
+                    </div>
+                    
+                    <!-- Row 1: Tool Name & Website -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-2">
+                                Tool Name <span class="text-rose-500">*</span>
+                            </label>
+                            <input
+                                type="text"
+                                id="toolName"
+                                required
+                                maxlength="50"
+                                placeholder="e.g., ChatGPT, Midjourney"
+                                class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 transition-all outline-none text-slate-800 placeholder:text-slate-400"
+                            >
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-2">
+                                Website <span class="text-slate-400">(optional)</span>
+                            </label>
+                            <div class="relative">
+                                <input
+                                    type="url"
+                                    id="toolWebsite"
+                                    maxlength="200"
+                                    placeholder="https://example.com"
+                                    class="w-full px-4 py-3 pr-10 rounded-xl border border-slate-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 transition-all outline-none text-slate-800 placeholder:text-slate-400"
+                                >
+                                <i data-lucide="external-link" class="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400"></i>
+                            </div>
+                        </div>
+                    </div>
 
-                <div class="form-group recaptcha-container">
-                    <div class="g-recaptcha" data-sitekey="6LfBRhgsAAAAAMJGVjoRF3to6p8LsssvTSs3lpRR" data-callback="onCaptchaSuccess" data-expired-callback="onCaptchaExpired"></div>
-                    <div class="captcha-error" id="captchaError">Please complete the CAPTCHA</div>
-                </div>
+                    <!-- Task Description -->
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-2">
+                            What did you use it for? <span class="text-rose-500">*</span>
+                        </label>
+                        <textarea
+                            id="taskDescription"
+                            required
+                            maxlength="200"
+                            placeholder="Describe the task you used this tool for..."
+                            rows="2"
+                            class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 transition-all outline-none text-slate-800 placeholder:text-slate-400 resize-none"
+                        ></textarea>
+                        <div class="text-right text-xs text-slate-400 mt-1" id="taskCounter">0/200</div>
+                    </div>
 
-                <button type="submit" class="btn-primary" id="submitBtn">
-                    <span id="submitBtnText">Submit Rating</span>
-                </button>
-            </form>
-        </section>
+                    <!-- Task Type Chips -->
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-3">
+                            Task Type <span class="text-slate-400">(optional)</span>
+                        </label>
+                        <div class="flex flex-wrap gap-2" id="taskTypeChips">
+                            <button type="button" data-type="Writing" class="task-chip px-4 py-2 rounded-full text-sm font-medium bg-white text-slate-600 border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 transition-all btn-press">✍️ Writing</button>
+                            <button type="button" data-type="Image generation" class="task-chip px-4 py-2 rounded-full text-sm font-medium bg-white text-slate-600 border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 transition-all btn-press">🎨 Image Gen</button>
+                            <button type="button" data-type="Data analysis" class="task-chip px-4 py-2 rounded-full text-sm font-medium bg-white text-slate-600 border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 transition-all btn-press">📊 Data</button>
+                            <button type="button" data-type="Coding" class="task-chip px-4 py-2 rounded-full text-sm font-medium bg-white text-slate-600 border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 transition-all btn-press">💻 Coding</button>
+                            <button type="button" data-type="Research" class="task-chip px-4 py-2 rounded-full text-sm font-medium bg-white text-slate-600 border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 transition-all btn-press">🔬 Research</button>
+                            <button type="button" data-type="Planning" class="task-chip px-4 py-2 rounded-full text-sm font-medium bg-white text-slate-600 border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 transition-all btn-press">📋 Planning</button>
+                            <button type="button" data-type="Marketing" class="task-chip px-4 py-2 rounded-full text-sm font-medium bg-white text-slate-600 border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 transition-all btn-press">📢 Marketing</button>
+                            <button type="button" data-type="Design" class="task-chip px-4 py-2 rounded-full text-sm font-medium bg-white text-slate-600 border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 transition-all btn-press">🎯 Design</button>
+                            <button type="button" data-type="Automation" class="task-chip px-4 py-2 rounded-full text-sm font-medium bg-white text-slate-600 border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 transition-all btn-press">⚙️ Automation</button>
+                            <button type="button" data-type="Audio/Video" class="task-chip px-4 py-2 rounded-full text-sm font-medium bg-white text-slate-600 border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 transition-all btn-press">🎬 Audio/Video</button>
+                            <button type="button" data-type="Translation" class="task-chip px-4 py-2 rounded-full text-sm font-medium bg-white text-slate-600 border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 transition-all btn-press">🌍 Translation</button>
+                            <button type="button" data-type="Other" class="task-chip px-4 py-2 rounded-full text-sm font-medium bg-white text-slate-600 border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 transition-all btn-press">📁 Other</button>
+                        </div>
+                    </div>
 
-        <!-- FIX #10: Footer -->
-        <footer class="footer">
-            <p class="footer-text">AI Tools Rank — Helping you find the best AI tools for your tasks</p>
-            <div class="footer-links">
-                <a href="#" class="footer-link" onclick="scrollToTop(); return false;">Back to top</a>
+                    <!-- Feedback -->
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-2">
+                            Your Feedback <span class="text-rose-500">*</span>
+                        </label>
+                        <textarea
+                            id="userFeedback"
+                            required
+                            maxlength="500"
+                            placeholder="What worked well? What didn't?"
+                            rows="3"
+                            class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 transition-all outline-none text-slate-800 placeholder:text-slate-400 resize-none"
+                        ></textarea>
+                        <div class="text-right text-xs text-slate-400 mt-1" id="feedbackCounter">0/500</div>
+                    </div>
+
+                    <!-- Pricing -->
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-2">
+                            Pricing <span class="text-slate-400">(optional)</span>
+                        </label>
+                        <select id="toolPrice" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 transition-all outline-none text-slate-800 bg-white">
+                            <option value="">Select pricing...</option>
+                            <option value="Free">Free</option>
+                            <option value="Free with limits">Free (limited)</option>
+                            <option value="$1-10/month">$1-10/mo</option>
+                            <option value="$11-20/month">$11-20/mo</option>
+                            <option value="$21-50/month">$21-50/mo</option>
+                            <option value="$50+/month">$50+/mo</option>
+                            <option value="Usage-based">Usage-based</option>
+                        </select>
+                    </div>
+
+                    <!-- Rating Stars -->
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-3">
+                            Your Rating <span class="text-rose-500">*</span>
+                        </label>
+                        <div class="flex gap-1" id="starRating">
+                            <button type="button" data-rating="1" class="star-btn transition-transform star-hover p-1">
+                                <i data-lucide="star" class="w-8 h-8 fill-slate-200 text-slate-300 star-icon"></i>
+                            </button>
+                            <button type="button" data-rating="2" class="star-btn transition-transform star-hover p-1">
+                                <i data-lucide="star" class="w-8 h-8 fill-slate-200 text-slate-300 star-icon"></i>
+                            </button>
+                            <button type="button" data-rating="3" class="star-btn transition-transform star-hover p-1">
+                                <i data-lucide="star" class="w-8 h-8 fill-slate-200 text-slate-300 star-icon"></i>
+                            </button>
+                            <button type="button" data-rating="4" class="star-btn transition-transform star-hover p-1">
+                                <i data-lucide="star" class="w-8 h-8 fill-slate-200 text-slate-300 star-icon"></i>
+                            </button>
+                            <button type="button" data-rating="5" class="star-btn transition-transform star-hover p-1">
+                                <i data-lucide="star" class="w-8 h-8 fill-slate-200 text-slate-300 star-icon"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- reCAPTCHA -->
+                    <div class="flex flex-col items-center py-4">
+                        <div class="g-recaptcha" data-sitekey="6LfBRhgsAAAAAMJGVjoRF3to6p8LsssvTSs3lpRR" data-callback="onCaptchaSuccess" data-expired-callback="onCaptchaExpired"></div>
+                        <div class="text-rose-500 text-sm mt-2 hidden" id="captchaError">Please complete the CAPTCHA</div>
+                        <p class="text-xs text-slate-400 mt-2">Please verify you're human</p>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button
+                        type="submit"
+                        id="submitBtn"
+                        class="w-full bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white font-semibold py-4 px-6 rounded-xl shadow-lg shadow-indigo-200 transform transition-all duration-200 hover:shadow-xl hover:-translate-y-0.5 btn-press focus:outline-none focus:ring-4 focus:ring-indigo-100"
+                    >
+                        <span id="submitBtnText">Submit Rating</span>
+                    </button>
+                </form>
             </div>
-            <p class="footer-text" style="margin-top: 0.75rem;">
-                <a href="https://www.linkedin.com/in/ron-lev-1269137a/" target="_blank" rel="noopener" style="color: var(--primary-color); text-decoration: none; font-weight: 600; font-size: 0.85rem;">
-                    Built by Ron Lev 🔗
-                </a>
-            </p>
-        </footer>
+        </div>
     </main>
+
+    <!-- Footer -->
+    <footer class="relative border-t border-slate-200 bg-white/80 backdrop-blur-lg mt-16">
+        <div class="max-w-7xl mx-auto px-6 py-8 text-center">
+            <p class="text-slate-500 mb-4">AI Tools Rank — Helping you find the best AI tools for your tasks</p>
+            <a 
+                href="https://www.linkedin.com/in/ron-lev-1269137a/" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                class="inline-flex items-center gap-2 text-indigo-600 hover:text-indigo-800 font-semibold transition-colors"
+            >
+                Built by Ron Lev 🔗
+            </a>
+        </div>
+    </footer>
 
     <script>
         'use strict';
+
+        // Initialize Lucide icons
+        lucide.createIcons();
 
         // ====================================
         // CONFIGURATION
@@ -1463,15 +527,13 @@
             lastSubmitTime: 0,
             isMobile: /iPhone|iPad|iPod|Android/i.test(navigator.userAgent),
             isLoading: true,
-            pullStartY: 0,
-            isPulling: false,
             captchaVerified: false
         };
 
-        // reCAPTCHA callback functions (must be global)
+        // reCAPTCHA callbacks
         function onCaptchaSuccess(token) {
             AppState.captchaVerified = true;
-            document.getElementById('captchaError').classList.remove('show');
+            document.getElementById('captchaError').classList.add('hidden');
         }
 
         function onCaptchaExpired() {
@@ -1513,22 +575,8 @@
         // ====================================
         
         function initializeApp() {
-            console.log('Initializing mobile-optimized app...');
+            console.log('Initializing app...');
             
-            // FIX #1: Better viewport height handling
-            updateViewportHeight();
-            window.addEventListener('resize', updateViewportHeight);
-            window.addEventListener('orientationchange', () => {
-                setTimeout(updateViewportHeight, 100);
-            });
-            
-            // Detect mobile and adjust
-            if (AppState.isMobile) {
-                document.body.classList.add('mobile');
-                adjustForMobile();
-            }
-            
-            // Check Firebase
             if (typeof firebase !== 'undefined') {
                 initializeFirebase();
             } else {
@@ -1536,122 +584,8 @@
             }
             
             setupEventListeners();
-            setupScrollIndicator();
             updateCharCounter('taskDescription');
             updateCharCounter('userFeedback');
-        }
-
-        // FIX #1: Proper viewport height calculation
-        function updateViewportHeight() {
-            const vh = window.innerHeight * 0.01;
-            document.documentElement.style.setProperty('--vh', `${vh}px`);
-        }
-
-        function adjustForMobile() {
-            // FIX #5: Pull to refresh functionality
-            setupPullToRefresh();
-            
-            // FIX #7: Handle keyboard appearance
-            setupKeyboardHandling();
-        }
-
-        // FIX #5: Pull to refresh
-        function setupPullToRefresh() {
-            let startY = 0;
-            let currentY = 0;
-            const pullIndicator = document.getElementById('pullIndicator');
-            const pullText = document.getElementById('pullText');
-            
-            document.addEventListener('touchstart', (e) => {
-                if (window.scrollY === 0) {
-                    startY = e.touches[0].pageY;
-                    AppState.isPulling = true;
-                }
-            }, { passive: true });
-            
-            document.addEventListener('touchmove', (e) => {
-                if (!AppState.isPulling || window.scrollY > 0) return;
-                
-                currentY = e.touches[0].pageY;
-                const pullDistance = currentY - startY;
-                
-                if (pullDistance > 0 && pullDistance < 150) {
-                    pullIndicator.classList.add('visible');
-                    
-                    if (pullDistance > 80) {
-                        pullText.textContent = '↑ Release to refresh';
-                    } else {
-                        pullText.textContent = '↓ Pull to refresh';
-                    }
-                }
-            }, { passive: true });
-            
-            document.addEventListener('touchend', () => {
-                const pullDistance = currentY - startY;
-                
-                if (AppState.isPulling && pullDistance > 80 && window.scrollY === 0) {
-                    pullIndicator.classList.add('refreshing');
-                    pullText.textContent = '⟳ Refreshing...';
-                    
-                    setTimeout(() => {
-                        location.reload();
-                    }, 500);
-                } else {
-                    pullIndicator.classList.remove('visible');
-                }
-                
-                AppState.isPulling = false;
-                startY = 0;
-                currentY = 0;
-            }, { passive: true });
-        }
-
-        // FIX #7: Keyboard handling
-        function setupKeyboardHandling() {
-            const inputs = document.querySelectorAll('input, textarea, select');
-            
-            inputs.forEach(input => {
-                input.addEventListener('focus', () => {
-                    // Add extra padding when keyboard opens
-                    setTimeout(() => {
-                        input.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    }, 300);
-                });
-            });
-
-            // Handle visual viewport changes (keyboard open/close)
-            if (window.visualViewport) {
-                window.visualViewport.addEventListener('resize', () => {
-                    const activeEl = document.activeElement;
-                    if (activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA')) {
-                        activeEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    }
-                });
-            }
-        }
-
-        // FIX #3: Scroll indicator for task chips
-        function setupScrollIndicator() {
-            const wrapper = document.getElementById('tasksWrapper');
-            const container = wrapper.parentElement;
-            const hint = document.getElementById('scrollHint');
-            
-            if (!AppState.isMobile) {
-                hint.style.display = 'none';
-                return;
-            }
-            
-            wrapper.addEventListener('scroll', () => {
-                const isAtEnd = wrapper.scrollLeft + wrapper.clientWidth >= wrapper.scrollWidth - 10;
-                
-                if (isAtEnd) {
-                    container.classList.add('scrolled-end');
-                    hint.style.opacity = '0';
-                } else {
-                    container.classList.remove('scrolled-end');
-                    hint.style.opacity = '0.7';
-                }
-            });
         }
 
         function initializeFirebase() {
@@ -1684,17 +618,7 @@
         }
 
         function loadFirebaseFallback() {
-            const script = document.createElement('script');
-            script.src = 'https://cdn.jsdelivr.net/npm/firebase@9.23.0/firebase-compat.min.js';
-            script.onload = () => {
-                if (typeof firebase !== 'undefined') {
-                    initializeFirebase();
-                } else {
-                    initializeOfflineMode();
-                }
-            };
-            script.onerror = () => initializeOfflineMode();
-            document.head.appendChild(script);
+            initializeOfflineMode();
         }
 
         function initializeOfflineMode() {
@@ -1738,7 +662,6 @@
                 if (stored) {
                     AppState.allRatings = JSON.parse(stored);
                 } else {
-                    // Demo data
                     AppState.allRatings = [
                         { id: 'demo1', toolName: 'ChatGPT', task: 'write marketing copy', feedback: 'Great for content', rating: 5, price: 'Free' },
                         { id: 'demo2', toolName: 'Claude', task: 'analyze data', feedback: 'Excellent analysis', rating: 5, price: '$20/month' },
@@ -1814,7 +737,7 @@
                     name: tool.name,
                     avgRating: tool.ratings.reduce((a, b) => a + b, 0) / tool.ratings.length,
                     reviewCount: tool.ratings.length,
-                    tasks: tool.tasks.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)) // Sort by newest first
+                    tasks: tool.tasks.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
                 }))
                 .sort((a, b) => b.avgRating - a.avgRating)
                 .slice(0, CONFIG.LIMITS.MAX_RATINGS_DISPLAY);
@@ -1827,14 +750,14 @@
             
             if (query.length < CONFIG.LIMITS.MIN_SEARCH_LENGTH) {
                 document.getElementById('searchResults').innerHTML = `
-                    <div style="text-align: center; padding: 2rem; color: var(--text-light);">
+                    <div class="text-center py-8 text-slate-500">
                         <p>Enter at least 2 characters</p>
                     </div>
                 `;
                 return;
             }
             
-            // Show loading skeleton - FIX #9
+            // Show loading skeleton
             document.getElementById('searchResults').innerHTML = `
                 <div class="skeleton skeleton-card"></div>
                 <div class="skeleton skeleton-card"></div>
@@ -1844,12 +767,8 @@
             AppState.searchTimeout = setTimeout(() => {
                 const results = findBestToolsForTask(query);
                 displayResults(query, results);
+                lucide.createIcons();
             }, CONFIG.LIMITS.SEARCH_DEBOUNCE);
-        }
-
-        function searchForTask(task) {
-            document.getElementById('searchInput').value = task;
-            performSearch();
         }
 
         function formatDate(dateString) {
@@ -1869,14 +788,42 @@
         function toggleReviews(toolId) {
             const container = document.getElementById(`reviews-${toolId}`);
             const button = document.getElementById(`btn-${toolId}`);
+            const icon = document.getElementById(`icon-${toolId}`);
+            const text = document.getElementById(`text-${toolId}`);
             
             if (container.classList.contains('expanded')) {
                 container.classList.remove('expanded');
-                button.innerHTML = `▼ View all reviews`;
+                icon.setAttribute('data-lucide', 'chevron-down');
+                text.textContent = 'View all reviews';
             } else {
                 container.classList.add('expanded');
-                button.innerHTML = `▲ Hide reviews`;
+                icon.setAttribute('data-lucide', 'chevron-up');
+                text.textContent = 'Show less';
             }
+            lucide.createIcons();
+        }
+
+        function highlightText(text, query) {
+            if (!query) return sanitizeHTML(text);
+            const words = query.toLowerCase().split(/\s+/).filter(w => w.length > 2);
+            let result = sanitizeHTML(text);
+            words.forEach(word => {
+                const regex = new RegExp(`(${word})`, 'gi');
+                result = result.replace(regex, '<span class="highlight-text">$1</span>');
+            });
+            return result;
+        }
+
+        function generateStars(rating, filled = true) {
+            let stars = '';
+            for (let i = 1; i <= 5; i++) {
+                if (i <= rating) {
+                    stars += `<i data-lucide="star" class="w-4 h-4 fill-amber-400 text-amber-400"></i>`;
+                } else {
+                    stars += `<i data-lucide="star" class="w-4 h-4 fill-slate-200 text-slate-200"></i>`;
+                }
+            }
+            return stars;
         }
 
         function displayResults(query, results) {
@@ -1885,85 +832,122 @@
             
             if (results.length === 0) {
                 container.innerHTML = `
-                    <div style="text-align: center; padding: 2rem;">
-                        <p>No tools found for "${sanitizedQuery}"</p>
-                        <p style="color: var(--text-light); margin-top: 1rem;">
-                            Be the first to rate a tool!
-                        </p>
+                    <div class="text-center py-8">
+                        <i data-lucide="search-x" class="w-12 h-12 mx-auto mb-4 text-slate-300"></i>
+                        <p class="text-slate-700">No tools found for "${sanitizedQuery}"</p>
+                        <p class="text-slate-500 mt-2">Be the first to rate a tool for this task!</p>
                     </div>
                 `;
+                lucide.createIcons();
                 return;
             }
             
             const resultsHTML = results.map((tool, index) => {
-                const rankEmoji = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `#${index + 1}`;
-                const rankClass = index === 0 ? 'gold' : index === 1 ? 'silver' : index === 2 ? 'bronze' : '';
                 const toolId = `tool-${index}`;
-                const hasMoreReviews = tool.tasks.length > 2;
+                const hasMoreReviews = tool.tasks.length > 1;
+                const previewReview = tool.tasks[0];
+                const additionalReviews = tool.tasks.slice(1);
                 
-                // First 2 reviews shown by default
-                const previewReviews = tool.tasks.slice(0, 2);
-                // All reviews for expanded view
-                const allReviews = tool.tasks;
+                // Badge based on rank
+                let badgeHTML = '';
+                if (index === 0) {
+                    badgeHTML = `
+                        <div class="absolute -top-3 -right-3 bg-gradient-to-br from-amber-400 to-amber-600 text-white w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg shadow-amber-200 transform rotate-12">
+                            <i data-lucide="trophy" class="w-7 h-7 -rotate-12"></i>
+                        </div>
+                    `;
+                } else if (index === 1) {
+                    badgeHTML = `
+                        <div class="absolute -top-3 -right-3 bg-gradient-to-br from-slate-300 to-slate-500 text-white w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg shadow-slate-200 transform rotate-12">
+                            <i data-lucide="medal" class="w-7 h-7 -rotate-12"></i>
+                        </div>
+                    `;
+                } else if (index === 2) {
+                    badgeHTML = `
+                        <div class="absolute -top-3 -right-3 bg-gradient-to-br from-orange-400 to-orange-600 text-white w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg shadow-orange-200 transform rotate-12">
+                            <i data-lucide="award" class="w-7 h-7 -rotate-12"></i>
+                        </div>
+                    `;
+                }
                 
                 return `
-                    <article class="task-result-card ${rankClass}">
-                        <div class="task-result-header">
-                            <div class="rank-badge">${rankEmoji}</div>
-                            <div class="task-result-content">
-                                <h3 class="task-result-title">${sanitizeHTML(tool.name)}</h3>
-                                <div class="task-rating">
-                                    <span class="stars">${'★'.repeat(Math.round(tool.avgRating))}</span>
-                                    <strong>${tool.avgRating.toFixed(1)}</strong>
-                                    <span style="color: var(--text-light);">(${tool.reviewCount} ${tool.reviewCount === 1 ? 'review' : 'reviews'})</span>
-                                </div>
-                            </div>
-                        </div>
+                    <div class="card-hover relative bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden mb-6">
+                        ${badgeHTML}
                         
-                        <!-- Preview reviews (always visible) -->
-                        <div class="reviews-preview">
-                            ${previewReviews.map(t => `
-                                <div class="feedback-box">
-                                    <div class="feedback-header">
-                                        <span class="feedback-task">Task: ${sanitizeHTML(t.task)}</span>
-                                        <span class="feedback-date">${formatDate(t.createdAt)}</span>
-                                    </div>
-                                    <div class="feedback-text">"${sanitizeHTML(t.feedback)}"</div>
-                                    <div class="feedback-rating">${'★'.repeat(t.rating)}${'☆'.repeat(5 - t.rating)}</div>
-                                    ${t.taskType ? `<span class="feedback-type">Type: ${sanitizeHTML(t.taskType)}</span>` : ''}
-                                </div>
-                            `).join('')}
-                        </div>
-                        
-                        <!-- Expandable reviews section -->
-                        ${hasMoreReviews ? `
-                            <div class="reviews-expandable" id="reviews-${toolId}">
-                                ${allReviews.slice(2).map(t => `
-                                    <div class="feedback-box">
-                                        <div class="feedback-header">
-                                            <span class="feedback-task">Task: ${sanitizeHTML(t.task)}</span>
-                                            <span class="feedback-date">${formatDate(t.createdAt)}</span>
+                        <div class="p-5 sm:p-6">
+                            <div class="flex items-start justify-between mb-4 ${index < 3 ? 'pr-12' : ''}">
+                                <div>
+                                    <h3 class="text-lg sm:text-xl font-bold text-slate-800">${sanitizeHTML(tool.name)}</h3>
+                                    <div class="flex items-center gap-2 sm:gap-3 mt-2 flex-wrap">
+                                        <div class="flex gap-0.5">
+                                            ${generateStars(Math.round(tool.avgRating))}
                                         </div>
-                                        <div class="feedback-text">"${sanitizeHTML(t.feedback)}"</div>
-                                        <div class="feedback-rating">${'★'.repeat(t.rating)}${'☆'.repeat(5 - t.rating)}</div>
-                                        ${t.taskType ? `<span class="feedback-type">Type: ${sanitizeHTML(t.taskType)}</span>` : ''}
+                                        <span class="text-base sm:text-lg font-semibold text-slate-700">${tool.avgRating.toFixed(1)}</span>
+                                        <span class="text-sm text-slate-400">(${tool.reviewCount} ${tool.reviewCount === 1 ? 'review' : 'reviews'})</span>
                                     </div>
-                                `).join('')}
+                                </div>
                             </div>
-                            <button class="view-reviews-btn" id="btn-${toolId}" onclick="toggleReviews('${toolId}')">
-                                ▼ View all ${allReviews.length} reviews
-                            </button>
-                        ` : ''}
-                    </article>
+
+                            <!-- First Review (always visible) -->
+                            <div class="bg-slate-50 rounded-xl p-4 border-l-4 border-indigo-400">
+                                <div class="flex items-start justify-between mb-2 gap-2">
+                                    <p class="text-sm font-medium text-slate-700">
+                                        ${highlightText(previewReview.task, query)}
+                                    </p>
+                                    <span class="text-xs text-slate-400 whitespace-nowrap">${formatDate(previewReview.createdAt)}</span>
+                                </div>
+                                <p class="text-sm text-slate-600 italic mb-2">"${sanitizeHTML(previewReview.feedback)}"</p>
+                                <div class="flex items-center justify-between flex-wrap gap-2">
+                                    <div class="flex gap-0.5">
+                                        ${generateStars(previewReview.rating)}
+                                    </div>
+                                    ${previewReview.taskType ? `<span class="text-xs bg-indigo-100 text-indigo-700 px-2 py-1 rounded-full">${sanitizeHTML(previewReview.taskType)}</span>` : ''}
+                                </div>
+                            </div>
+
+                            <!-- Additional Reviews (expandable) -->
+                            ${hasMoreReviews ? `
+                                <div class="reviews-expandable space-y-3 mt-3" id="reviews-${toolId}">
+                                    ${additionalReviews.map(t => `
+                                        <div class="bg-slate-50 rounded-xl p-4 border-l-4 border-indigo-400">
+                                            <div class="flex items-start justify-between mb-2 gap-2">
+                                                <p class="text-sm font-medium text-slate-700">
+                                                    ${highlightText(t.task, query)}
+                                                </p>
+                                                <span class="text-xs text-slate-400 whitespace-nowrap">${formatDate(t.createdAt)}</span>
+                                            </div>
+                                            <p class="text-sm text-slate-600 italic mb-2">"${sanitizeHTML(t.feedback)}"</p>
+                                            <div class="flex items-center justify-between flex-wrap gap-2">
+                                                <div class="flex gap-0.5">
+                                                    ${generateStars(t.rating)}
+                                                </div>
+                                                ${t.taskType ? `<span class="text-xs bg-indigo-100 text-indigo-700 px-2 py-1 rounded-full">${sanitizeHTML(t.taskType)}</span>` : ''}
+                                            </div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                                <button
+                                    onclick="toggleReviews('${toolId}')"
+                                    id="btn-${toolId}"
+                                    class="mt-4 w-full py-2 text-sm font-medium text-indigo-600 hover:text-indigo-800 flex items-center justify-center gap-1 transition-colors rounded-lg hover:bg-indigo-50"
+                                >
+                                    <i data-lucide="chevron-down" class="w-4 h-4" id="icon-${toolId}"></i>
+                                    <span id="text-${toolId}">View all ${tool.tasks.length} reviews</span>
+                                </button>
+                            ` : ''}
+                        </div>
+                    </div>
                 `;
             }).join('');
             
             container.innerHTML = `
-                <h3 style="text-align: center; margin-bottom: 1.5rem;">
-                    Results for "${sanitizedQuery}"
-                </h3>
+                <h2 class="text-xl sm:text-2xl font-bold text-slate-800 mb-6">
+                    Results for "<span class="text-indigo-600">${sanitizedQuery}</span>"
+                </h2>
                 ${resultsHTML}
             `;
+            
+            lucide.createIcons();
         }
 
         // ====================================
@@ -2004,9 +988,8 @@
                 return;
             }
             
-            // Verify CAPTCHA
             if (!AppState.captchaVerified) {
-                document.getElementById('captchaError').classList.add('show');
+                document.getElementById('captchaError').classList.remove('hidden');
                 showError('Please complete the CAPTCHA');
                 return;
             }
@@ -2050,7 +1033,6 @@
                 saveLocalRatings();
                 updateStats();
                 
-                // Track submission in Google Analytics
                 if (typeof gtag !== 'undefined') {
                     gtag('event', 'tool_ranking_submitted', {
                         tool_name: sanitizeHTML(toolName),
@@ -2071,15 +1053,11 @@
                 updateCharCounter('taskDescription');
                 updateCharCounter('userFeedback');
                 
-                // Reset reCAPTCHA
                 if (typeof grecaptcha !== 'undefined') {
                     grecaptcha.reset();
                 }
                 
-                // Scroll to top on mobile
-                if (AppState.isMobile) {
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                }
+                window.scrollTo({ top: 0, behavior: 'smooth' });
                 
             } catch (error) {
                 showError('Failed to submit');
@@ -2098,19 +1076,20 @@
             const statusEl = document.getElementById('connectionStatus');
             const statusText = document.getElementById('statusText');
             
-            statusEl.className = 'connection-status';
+            statusEl.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium';
             
             switch(status) {
                 case 'connected':
-                    statusText.textContent = '✅ Online';
+                    statusEl.classList.add('bg-emerald-100', 'text-emerald-700');
+                    statusText.innerHTML = '<span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse inline-block mr-1"></span>Online';
                     break;
                 case 'write-only':
-                    statusEl.classList.add('status-warning');
-                    statusText.textContent = '📝 Write';
+                    statusEl.classList.add('bg-amber-100', 'text-amber-700');
+                    statusText.innerHTML = '<span class="w-2 h-2 bg-amber-500 rounded-full inline-block mr-1"></span>Write Only';
                     break;
                 case 'offline':
-                    statusEl.classList.add('status-disconnected');
-                    statusText.textContent = '💾 Offline';
+                    statusEl.classList.add('bg-red-100', 'text-red-700');
+                    statusText.innerHTML = '<span class="w-2 h-2 bg-red-500 rounded-full inline-block mr-1"></span>Offline';
                     break;
             }
         }
@@ -2158,59 +1137,50 @@
             const max = fieldId === 'taskDescription' ? CONFIG.LIMITS.MAX_TASK_DESC : CONFIG.LIMITS.MAX_FEEDBACK;
             
             counter.textContent = `${length}/${max}`;
-            counter.className = 'char-counter';
+            counter.className = 'text-right text-xs mt-1';
             
             if (length >= max) {
-                counter.classList.add('error');
+                counter.classList.add('text-red-500');
             } else if (length >= max * 0.9) {
-                counter.classList.add('warning');
+                counter.classList.add('text-amber-500');
+            } else {
+                counter.classList.add('text-slate-400');
             }
         }
 
         function updateStars() {
-            document.querySelectorAll('.star').forEach((star, index) => {
+            document.querySelectorAll('.star-btn').forEach((btn, index) => {
+                const icon = btn.querySelector('.star-icon');
                 const isActive = index < AppState.selectedRating;
-                star.style.color = isActive ? '#fbbf24' : '#ddd';
-                star.classList.toggle('active', isActive);
-                star.setAttribute('aria-checked', String(isActive));
+                
+                if (isActive) {
+                    icon.classList.remove('fill-slate-200', 'text-slate-300');
+                    icon.classList.add('fill-amber-400', 'text-amber-400');
+                } else {
+                    icon.classList.remove('fill-amber-400', 'text-amber-400');
+                    icon.classList.add('fill-slate-200', 'text-slate-300');
+                }
             });
         }
 
-        function scrollToTop() {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        // Task Type functions
         function selectTaskType(type) {
-            // Deselect all chips
-            document.querySelectorAll('.task-type-chip').forEach(chip => {
-                chip.classList.remove('selected');
+            document.querySelectorAll('.task-chip').forEach(chip => {
+                chip.classList.remove('chip-selected');
             });
             
-            // Select the clicked chip
-            const selectedChip = document.querySelector(`.task-type-chip[data-type="${type}"]`);
+            const selectedChip = document.querySelector(`.task-chip[data-type="${type}"]`);
             if (selectedChip) {
-                selectedChip.classList.add('selected');
+                selectedChip.classList.add('chip-selected');
             }
             
-            // Update state
             AppState.selectedTaskType = type;
-            
-            // Show clear button
-            document.getElementById('clearTaskType').style.display = 'inline';
         }
 
         function clearTaskType() {
-            // Deselect all chips
-            document.querySelectorAll('.task-type-chip').forEach(chip => {
-                chip.classList.remove('selected');
+            document.querySelectorAll('.task-chip').forEach(chip => {
+                chip.classList.remove('chip-selected');
             });
-            
-            // Clear state
             AppState.selectedTaskType = null;
-            
-            // Hide clear button
-            document.getElementById('clearTaskType').style.display = 'none';
         }
 
         // ====================================
@@ -2235,11 +1205,10 @@
             document.getElementById('userFeedback').addEventListener('input', () => updateCharCounter('userFeedback'));
             
             // Task Type chips
-            document.querySelectorAll('.task-type-chip').forEach(chip => {
+            document.querySelectorAll('.task-chip').forEach(chip => {
                 chip.addEventListener('click', function() {
                     const type = this.dataset.type;
                     if (AppState.selectedTaskType === type) {
-                        // If clicking the same chip, deselect it
                         clearTaskType();
                     } else {
                         selectTaskType(type);
@@ -2247,32 +1216,19 @@
                 });
             });
             
-            // Star rating - Touch optimized - FIX #6
-            document.querySelectorAll('.star').forEach(star => {
-                // Touch events
-                star.addEventListener('touchstart', function(e) {
+            // Star rating
+            document.querySelectorAll('.star-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    AppState.selectedRating = parseInt(this.dataset.rating);
+                    updateStars();
+                });
+                
+                btn.addEventListener('touchstart', function(e) {
                     e.preventDefault();
                     AppState.selectedRating = parseInt(this.dataset.rating);
                     updateStars();
-                    
-                    // Haptic feedback on mobile
                     if (window.navigator.vibrate) {
                         window.navigator.vibrate(10);
-                    }
-                });
-                
-                // Click for desktop
-                star.addEventListener('click', function() {
-                    AppState.selectedRating = parseInt(this.dataset.rating);
-                    updateStars();
-                });
-                
-                // Keyboard
-                star.addEventListener('keydown', function(e) {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault();
-                        AppState.selectedRating = parseInt(this.dataset.rating);
-                        updateStars();
                     }
                 });
             });
@@ -2288,9 +1244,7 @@
             initializeApp();
         }
         
-        // Save on exit
         window.addEventListener('beforeunload', saveLocalRatings);
     </script>
 </body>
 </html>
-
