@@ -184,17 +184,13 @@
 
     <!-- Header -->
     <header class="relative border-b border-slate-200/50 bg-white/80 backdrop-blur-lg sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-center">
             <a href="#" onclick="location.reload(); return false;" class="flex items-center gap-3">
                 <div class="bg-gradient-to-br from-indigo-600 to-violet-600 p-2.5 rounded-xl shadow-lg shadow-indigo-200">
                     <i data-lucide="bar-chart-3" class="w-5 h-5 sm:w-6 sm:h-6 text-white"></i>
                 </div>
                 <span class="text-lg sm:text-xl font-bold text-slate-800">AI Tools Rank</span>
             </a>
-            <div id="connectionStatus" class="flex items-center gap-1.5 bg-emerald-100 text-emerald-700 px-3 py-1.5 rounded-full text-sm font-medium">
-                <span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
-                <span id="statusText">Loading...</span>
-            </div>
         </div>
     </header>
 
@@ -239,14 +235,14 @@
 
                 <!-- Rate Card -->
                 <div class="card-hover bg-white rounded-2xl p-6 sm:p-8 text-center border border-slate-100 shadow-sm cursor-pointer" onclick="document.getElementById('ratingForm').scrollIntoView({behavior: 'smooth', block: 'start'});">
-                    <div class="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-emerald-200">
+                    <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg" style="background: linear-gradient(to bottom right, #14B8A6, #0D9488); box-shadow: 0 10px 15px -3px rgba(13, 148, 136, 0.3);">
                         <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-8 h-8 sm:w-10 sm:h-10">
                             <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
                         </svg>
                     </div>
                     <h3 class="text-xl sm:text-2xl font-bold text-slate-800 mb-2">Rate an AI Tool</h3>
                     <p class="text-slate-500 text-sm sm:text-base mb-5">Share your experience and help others discover great AI tools through authentic reviews.</p>
-                    <button class="w-full bg-gradient-to-r from-emerald-400 to-teal-500 hover:from-emerald-500 hover:to-teal-600 text-white font-semibold py-3 sm:py-4 px-6 rounded-xl transition-all duration-200 btn-press shadow-md shadow-emerald-200">
+                    <button class="w-full text-white font-semibold py-3 sm:py-4 px-6 rounded-xl transition-all duration-200 btn-press" style="background: linear-gradient(to right, #14B8A6, #0D9488); box-shadow: 0 4px 6px -1px rgba(13, 148, 136, 0.3);" onmouseover="this.style.background='linear-gradient(to right, #0F9D8F, #0B857A)'" onmouseout="this.style.background='linear-gradient(to right, #14B8A6, #0D9488)'">
                         Add Rating
                     </button>
                 </div>
@@ -369,36 +365,19 @@
                         <span id="errorText">Something went wrong</span>
                     </div>
                     
-                    <!-- Row 1: Tool Name & Website -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-slate-700 mb-2">
-                                Tool Name <span class="text-rose-500">*</span>
-                            </label>
-                            <input
-                                type="text"
-                                id="toolName"
-                                required
-                                maxlength="50"
-                                placeholder="e.g., ChatGPT, Midjourney"
-                                class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 transition-all outline-none text-slate-800 placeholder:text-slate-400"
-                            >
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-slate-700 mb-2">
-                                Website <span class="text-slate-400">(optional)</span>
-                            </label>
-                            <div class="relative">
-                                <input
-                                    type="url"
-                                    id="toolWebsite"
-                                    maxlength="200"
-                                    placeholder="https://example.com"
-                                    class="w-full px-4 py-3 pr-10 rounded-xl border border-slate-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 transition-all outline-none text-slate-800 placeholder:text-slate-400"
-                                >
-                                <i data-lucide="external-link" class="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400"></i>
-                            </div>
-                        </div>
+                    <!-- Tool Name -->
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-2">
+                            Tool Name <span class="text-rose-500">*</span>
+                        </label>
+                        <input
+                            type="text"
+                            id="toolName"
+                            required
+                            maxlength="50"
+                            placeholder="e.g., ChatGPT, Midjourney"
+                            class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 transition-all outline-none text-slate-800 placeholder:text-slate-400"
+                        >
                     </div>
 
                     <!-- Task Description -->
@@ -1112,7 +1091,6 @@
             }
             
             const toolName = document.getElementById('toolName').value.trim();
-            const toolWebsite = document.getElementById('toolWebsite').value.trim();
             const taskDescription = document.getElementById('taskDescription').value.trim();
             const userFeedback = document.getElementById('userFeedback').value.trim();
             const toolPrice = document.getElementById('toolPrice').value;
@@ -1153,7 +1131,6 @@
             try {
                 const formData = {
                     toolName: sanitizeHTML(toolName),
-                    website: toolWebsite || null,
                     task: sanitizeHTML(taskDescription.toLowerCase()),
                     taskType: AppState.selectedTaskType || null,
                     feedback: sanitizeHTML(userFeedback),
@@ -1222,25 +1199,8 @@
         // ====================================
         
         function updateConnectionStatus(status) {
-            const statusEl = document.getElementById('connectionStatus');
-            const statusText = document.getElementById('statusText');
-            
-            statusEl.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium';
-            
-            switch(status) {
-                case 'connected':
-                    statusEl.classList.add('bg-emerald-100', 'text-emerald-700');
-                    statusText.innerHTML = '<span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse inline-block mr-1"></span>Online';
-                    break;
-                case 'write-only':
-                    statusEl.classList.add('bg-amber-100', 'text-amber-700');
-                    statusText.innerHTML = '<span class="w-2 h-2 bg-amber-500 rounded-full inline-block mr-1"></span>Write Only';
-                    break;
-                case 'offline':
-                    statusEl.classList.add('bg-red-100', 'text-red-700');
-                    statusText.innerHTML = '<span class="w-2 h-2 bg-red-500 rounded-full inline-block mr-1"></span>Offline';
-                    break;
-            }
+            // Connection status banner removed - function kept for compatibility
+            console.log('Connection status:', status);
         }
 
         function showSuccess(message) {
@@ -1397,4 +1357,3 @@
     </script>
 </body>
 </html>
-
