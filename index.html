@@ -825,15 +825,30 @@
             const results = new Map();
             
             AppState.allRatings.forEach(rating => {
+                // Combine all searchable fields: task, taskType, feedback, and toolName
                 const taskWords = (rating.task || '').toLowerCase().split(/\s+/).filter(w => w.length > 2);
+                const taskTypeWords = (rating.taskType || '').toLowerCase().split(/\s+/).filter(w => w.length > 2);
+                const feedbackWords = (rating.feedback || '').toLowerCase().split(/\s+/).filter(w => w.length > 2);
+                const toolNameWords = (rating.toolName || '').toLowerCase().split(/\s+/).filter(w => w.length > 2);
+                
+                // Combine all words for searching
+                const allWords = [...taskWords, ...taskTypeWords, ...feedbackWords, ...toolNameWords];
                 
                 let similarity = 0;
                 searchWords.forEach(sw => {
+                    // Exact match in task description (highest priority)
                     if (taskWords.includes(sw)) similarity += 30;
-                    else if (taskWords.some(tw => tw.includes(sw) || sw.includes(tw))) similarity += 15;
+                    // Exact match in task type (high priority)
+                    else if (taskTypeWords.includes(sw)) similarity += 25;
+                    // Exact match in tool name
+                    else if (toolNameWords.includes(sw)) similarity += 20;
+                    // Exact match in feedback
+                    else if (feedbackWords.includes(sw)) similarity += 15;
+                    // Partial match anywhere
+                    else if (allWords.some(w => w.includes(sw) || sw.includes(w))) similarity += 10;
                 });
                 
-                if (similarity > 20) {
+                if (similarity > 15) {
                     const key = normalizeToolName(rating.toolName);
                     if (!results.has(key)) {
                         results.set(key, {
