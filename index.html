@@ -818,32 +818,137 @@
             return name.toLowerCase().replace(/[^a-z0-9]/g, '');
         }
 
+        // Synonym mapping for better search results
+        const synonymMap = {
+            // Image-related
+            'photo': 'image',
+            'picture': 'image',
+            'visual': 'image',
+            'graphic': 'image',
+            'illustration': 'image',
+            'art': 'image',
+            'design': 'image',
+            
+            // Code-related
+            'coding': 'code',
+            'programming': 'code',
+            'developer': 'code',
+            'script': 'code',
+            'debug': 'code',
+            'debugging': 'code',
+            
+            // Writing-related
+            'write': 'writing',
+            'content': 'writing',
+            'copy': 'writing',
+            'copywriting': 'writing',
+            'blog': 'writing',
+            'article': 'writing',
+            'post': 'writing',
+            'text': 'writing',
+            'draft': 'writing',
+            
+            // Data-related
+            'data': 'analysis',
+            'analytics': 'analysis',
+            'analyze': 'analysis',
+            'analyse': 'analysis',
+            'spreadsheet': 'analysis',
+            'csv': 'analysis',
+            'excel': 'analysis',
+            'chart': 'analysis',
+            
+            // Research-related
+            'research': 'research',
+            'investigate': 'research',
+            'find': 'research',
+            'search': 'research',
+            'lookup': 'research',
+            
+            // Marketing-related
+            'marketing': 'marketing',
+            'advertise': 'marketing',
+            'advertising': 'marketing',
+            'campaign': 'marketing',
+            'promotion': 'marketing',
+            'social': 'marketing',
+            'ads': 'marketing',
+            
+            // Generation-related
+            'generate': 'generation',
+            'create': 'generation',
+            'make': 'generation',
+            'produce': 'generation',
+            'build': 'generation'
+        };
+
+        // Expand search terms with synonyms
+        function expandWithSynonyms(words) {
+            const expanded = new Set(words);
+            words.forEach(word => {
+                // Add the synonym if this word maps to one
+                if (synonymMap[word]) {
+                    expanded.add(synonymMap[word]);
+                }
+                // Also check if this word IS a synonym target (reverse lookup)
+                Object.entries(synonymMap).forEach(([key, value]) => {
+                    if (value === word) {
+                        expanded.add(key);
+                    }
+                });
+            });
+            return Array.from(expanded);
+        }
+
+        // Bayesian Average calculation for fairer ranking
+        function calculateBayesianScore(avgRating, reviewCount) {
+            const C = 5;    // Confidence threshold (minimum reviews for full weight)
+            const m = 3.5;  // Baseline/prior rating
+            const v = reviewCount;
+            const R = avgRating;
+            
+            // Bayesian Average: (v / (v + C)) * R + (C / (v + C)) * m
+            return (v / (v + C)) * R + (C / (v + C)) * m;
+        }
+
         function findBestToolsForTask(searchTask) {
             if (!searchTask || searchTask.length < CONFIG.LIMITS.MIN_SEARCH_LENGTH) return [];
             
-            const searchWords = searchTask.toLowerCase().split(/\s+/).filter(w => w.length > 2);
+            // Get search words and expand with synonyms
+            const rawSearchWords = searchTask.toLowerCase().split(/\s+/).filter(w => w.length > 2);
+            const searchWords = expandWithSynonyms(rawSearchWords);
+            
             const results = new Map();
             
             AppState.allRatings.forEach(rating => {
                 // Combine all searchable fields: task, taskType, feedback, and toolName
-                const taskWords = (rating.task || '').toLowerCase().split(/\s+/).filter(w => w.length > 2);
-                const taskTypeWords = (rating.taskType || '').toLowerCase().split(/\s+/).filter(w => w.length > 2);
-                const feedbackWords = (rating.feedback || '').toLowerCase().split(/\s+/).filter(w => w.length > 2);
-                const toolNameWords = (rating.toolName || '').toLowerCase().split(/\s+/).filter(w => w.length > 2);
+                const taskText = (rating.task || '').toLowerCase();
+                const taskTypeText = (rating.taskType || '').toLowerCase();
+                const feedbackText = (rating.feedback || '').toLowerCase();
+                const toolNameText = (rating.toolName || '').toLowerCase();
                 
-                // Combine all words for searching
-                const allWords = [...taskWords, ...taskTypeWords, ...feedbackWords, ...toolNameWords];
+                const taskWords = taskText.split(/\s+/).filter(w => w.length > 2);
+                const taskTypeWords = taskTypeText.split(/\s+/).filter(w => w.length > 2);
+                const feedbackWords = feedbackText.split(/\s+/).filter(w => w.length > 2);
+                const toolNameWords = toolNameText.split(/\s+/).filter(w => w.length > 2);
+                
+                // Expand database words with synonyms too
+                const allTaskWords = expandWithSynonyms(taskWords);
+                const allTaskTypeWords = expandWithSynonyms(taskTypeWords);
+                const allFeedbackWords = expandWithSynonyms(feedbackWords);
+                const allToolNameWords = expandWithSynonyms(toolNameWords);
+                const allWords = [...allTaskWords, ...allTaskTypeWords, ...allFeedbackWords, ...allToolNameWords];
                 
                 let similarity = 0;
                 searchWords.forEach(sw => {
                     // Exact match in task description (highest priority)
-                    if (taskWords.includes(sw)) similarity += 30;
+                    if (allTaskWords.includes(sw)) similarity += 30;
                     // Exact match in task type (high priority)
-                    else if (taskTypeWords.includes(sw)) similarity += 25;
+                    else if (allTaskTypeWords.includes(sw)) similarity += 25;
                     // Exact match in tool name
-                    else if (toolNameWords.includes(sw)) similarity += 20;
+                    else if (allToolNameWords.includes(sw)) similarity += 20;
                     // Exact match in feedback
-                    else if (feedbackWords.includes(sw)) similarity += 15;
+                    else if (allFeedbackWords.includes(sw)) similarity += 15;
                     // Partial match anywhere
                     else if (allWords.some(w => w.includes(sw) || sw.includes(w))) similarity += 10;
                 });
@@ -871,13 +976,19 @@
             });
             
             return Array.from(results.values())
-                .map(tool => ({
-                    name: tool.name,
-                    avgRating: tool.ratings.reduce((a, b) => a + b, 0) / tool.ratings.length,
-                    reviewCount: tool.ratings.length,
-                    tasks: tool.tasks.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-                }))
-                .sort((a, b) => b.avgRating - a.avgRating)
+                .map(tool => {
+                    const avgRating = tool.ratings.reduce((a, b) => a + b, 0) / tool.ratings.length;
+                    const reviewCount = tool.ratings.length;
+                    return {
+                        name: tool.name,
+                        avgRating: avgRating,
+                        bayesianScore: calculateBayesianScore(avgRating, reviewCount),
+                        reviewCount: reviewCount,
+                        tasks: tool.tasks.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+                    };
+                })
+                // Sort by Bayesian score (fairer ranking)
+                .sort((a, b) => b.bayesianScore - a.bayesianScore)
                 .slice(0, CONFIG.LIMITS.MAX_RATINGS_DISPLAY);
         }
 
@@ -1372,3 +1483,4 @@
     </script>
 </body>
 </html>
+
