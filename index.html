@@ -924,7 +924,7 @@
                     
                     // Exact match in task description (highest priority)
                     if (taskWords.includes(sw)) {
-                        similarity += isOriginalTerm ? 35 : 20;
+                        similarity += isOriginalTerm ? 50 : 25;
                         if (isOriginalTerm) matchedOriginalTerm = true;
                     }
                     // Exact match in task type (high priority)
@@ -1105,10 +1105,6 @@
                 return;
             }
             
-            // Find the highest rated tool to determine if we need "Best Match" badges
-            const allScores = results.map(tool => tool.bayesianScore);
-            const highestRated = allScores.length > 0 ? Math.max(...allScores) : 0;
-            
             const resultsHTML = results.map((tool, index) => {
                 const toolId = `tool-${index}`;
                 const hasMoreReviews = tool.tasks.length > 1;
@@ -1116,8 +1112,8 @@
                 const additionalReviews = tool.tasks.slice(1);
                 
                 // Check if this tool deserves a "Best Match" badge
-                // Show if: high relevance (>=30) AND not the highest Bayesian score (relevance beat rating)
-                const showBestMatch = tool.relevance >= 30 && tool.bayesianScore < highestRated;
+                // Show if: #1 ranked result AND has high relevance (>=30)
+                const showBestMatch = tool.relevance >= 30 && index === 0;
                 
                 // Best Match badge HTML
                 const bestMatchBadge = showBestMatch ? `
@@ -1511,4 +1507,3 @@
     </script>
 </body>
 </html>
-
