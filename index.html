@@ -1111,6 +1111,9 @@
                 const previewReview = tool.tasks[0];
                 const additionalReviews = tool.tasks.slice(1);
                 
+                // Debug logging - check console to see values
+                console.log(`Tool: ${tool.name}, Index: ${index}, Relevance: ${tool.relevance}, Show Badge: ${tool.relevance >= 30 && index === 0}`);
+                
                 // Check if this tool deserves a "Best Match" badge
                 // Show if: #1 ranked result AND has high relevance (>=30)
                 const showBestMatch = tool.relevance >= 30 && index === 0;
