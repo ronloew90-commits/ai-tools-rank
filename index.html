@@ -1106,7 +1106,8 @@
             }
             
             // Find the highest rated tool to determine if we need "Best Match" badges
-            const highestRated = Math.max(...results.map(t => t.avgRating));
+            const allScores = results.map(tool => tool.bayesianScore);
+            const highestRated = allScores.length > 0 ? Math.max(...allScores) : 0;
             
             const resultsHTML = results.map((tool, index) => {
                 const toolId = `tool-${index}`;
@@ -1115,8 +1116,8 @@
                 const additionalReviews = tool.tasks.slice(1);
                 
                 // Check if this tool deserves a "Best Match" badge
-                // Show if: high relevance (>50) AND not the highest rated (relevance beat rating)
-                const showBestMatch = tool.relevance > 50 && tool.avgRating < highestRated;
+                // Show if: high relevance (>50) AND not the highest Bayesian score (relevance beat rating)
+                const showBestMatch = tool.relevance > 50 && tool.bayesianScore < highestRated;
                 
                 // Best Match badge HTML
                 const bestMatchBadge = showBestMatch ? `
@@ -1510,4 +1511,3 @@
     </script>
 </body>
 </html>
-
