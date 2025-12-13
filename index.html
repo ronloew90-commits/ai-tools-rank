@@ -212,9 +212,32 @@
             </h1>
             
             <!-- Subtitle -->
-            <p class="text-lg sm:text-xl text-slate-500 max-w-2xl mx-auto mb-8 sm:mb-10 px-4">
+            <p class="text-lg sm:text-xl text-slate-500 max-w-2xl mx-auto mb-6 sm:mb-8 px-4">
                 Real reviews from real users. Discover which AI tools actually deliver results.
             </p>
+
+            <!-- Search Bar - Moved Up for Immediate Utility -->
+            <div class="relative max-w-2xl mx-auto mb-8 sm:mb-10 px-4">
+                <form onsubmit="performSearch(event); return false;" class="relative">
+                    <i data-lucide="search" class="absolute left-4 sm:left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400"></i>
+                    <input
+                        type="text"
+                        id="searchInput"
+                        placeholder="What task do you need help with?"
+                        maxlength="200"
+                        autocomplete="off"
+                        class="w-full pl-12 sm:pl-14 pr-24 sm:pr-32 py-4 sm:py-5 rounded-xl sm:rounded-2xl border border-slate-200 shadow-lg focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 transition-all outline-none text-slate-800 placeholder:text-slate-400 text-base sm:text-lg bg-white"
+                    >
+                    <button
+                        type="submit"
+                        id="searchBtn"
+                        class="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg sm:rounded-xl transition-all duration-200 btn-press shadow-md shadow-indigo-200"
+                    >
+                        Search
+                    </button>
+                </form>
+                <p class="text-sm text-slate-400 mt-2 text-center">Try "write marketing copy" or "generate images"</p>
+            </div>
 
             <!-- Action Cards -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 max-w-3xl mx-auto mb-10 sm:mb-12 px-4">
@@ -303,36 +326,10 @@
             </div>
         </div>
 
-        <!-- Search Bar -->
-        <div class="relative max-w-2xl mx-auto mb-10 sm:mb-12 px-4">
-            <form onsubmit="performSearch(event); return false;" class="relative">
-                <i data-lucide="search" class="absolute left-4 sm:left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400"></i>
-                <input
-                    type="text"
-                    id="searchInput"
-                    placeholder="What task do you need help with?"
-                    maxlength="200"
-                    autocomplete="off"
-                    class="w-full pl-12 sm:pl-14 pr-24 sm:pr-32 py-4 sm:py-5 rounded-xl sm:rounded-2xl border border-slate-200 shadow-sm focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 transition-all outline-none text-slate-800 placeholder:text-slate-400 text-base sm:text-lg"
-                >
-                <button
-                    type="submit"
-                    id="searchBtn"
-                    class="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg sm:rounded-xl transition-all duration-200 btn-press shadow-md shadow-indigo-200"
-                >
-                    Search
-                </button>
-            </form>
-        </div>
-
         <!-- Search Results -->
         <div id="resultsSection" class="mb-12 sm:mb-16 px-4">
             <div id="searchResults">
-                <div class="text-center py-8 text-slate-500">
-                    <i data-lucide="search" class="w-12 h-12 mx-auto mb-4 text-slate-300"></i>
-                    <p class="text-lg">Search for a task to find the best AI tools</p>
-                    <p class="text-sm mt-2">Try "write marketing copy" or "generate images"</p>
-                </div>
+                <!-- Results will appear here after search -->
             </div>
         </div>
 
@@ -1066,6 +1063,34 @@
             lucide.createIcons();
         }
 
+        // Quick-Tap Rating: Pre-fill form and scroll to it
+        function quickRate(toolName, rating) {
+            // Pre-fill the tool name
+            document.getElementById('toolName').value = toolName;
+            
+            // Pre-select the star rating
+            AppState.selectedRating = rating;
+            document.querySelectorAll('.star-btn').forEach((star, idx) => {
+                const starIcon = star.querySelector('[data-lucide="star"]');
+                if (idx < rating) {
+                    starIcon.classList.remove('fill-slate-200', 'text-slate-200');
+                    starIcon.classList.add('fill-amber-400', 'text-amber-400');
+                } else {
+                    starIcon.classList.remove('fill-amber-400', 'text-amber-400');
+                    starIcon.classList.add('fill-slate-200', 'text-slate-200');
+                }
+            });
+            lucide.createIcons();
+            
+            // Scroll to form
+            document.getElementById('ratingForm').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            
+            // Focus on task description after a short delay
+            setTimeout(() => {
+                document.getElementById('taskDescription').focus();
+            }, 500);
+        }
+
         function highlightText(text, query) {
             if (!query) return sanitizeHTML(text);
             const words = query.toLowerCase().split(/\s+/).filter(w => w.length > 2);
@@ -1112,11 +1137,11 @@
                 const additionalReviews = tool.tasks.slice(1);
                 
                 // Debug logging - check console to see values
-                console.log(`Tool: ${tool.name}, Index: ${index}, Relevance: ${tool.relevance}, Show Badge: ${tool.relevance >= 30 && index === 0}`);
+                console.log(`Tool: ${tool.name}, Index: ${index}, Relevance: ${tool.relevance}, Show Badge: ${tool.relevance >= 20 && index === 0}`);
                 
                 // Check if this tool deserves a "Best Match" badge
-                // Show if: #1 ranked result AND has high relevance (>=30)
-                const showBestMatch = tool.relevance >= 30 && index === 0;
+                // Show if: #1 ranked result AND has high relevance (>=20)
+                const showBestMatch = tool.relevance >= 20 && index === 0;
                 
                 // Best Match badge HTML
                 const bestMatchBadge = showBestMatch ? `
@@ -1216,6 +1241,26 @@
                                     <span id="text-${toolId}">View all ${tool.tasks.length} reviews</span>
                                 </button>
                             ` : ''}
+                            
+                            <!-- Quick-Tap Rating -->
+                            <div class="mt-4 pt-4 border-t border-slate-100">
+                                <div class="flex items-center justify-between flex-wrap gap-2">
+                                    <span class="text-sm text-slate-500">Rate this tool:</span>
+                                    <div class="flex gap-1">
+                                        ${[1,2,3,4,5].map(star => `
+                                            <button 
+                                                onclick="quickRate('${sanitizeHTML(tool.name).replace(/'/g, "\\'")}', ${star})"
+                                                class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-amber-50 transition-colors group"
+                                                title="Rate ${star} star${star > 1 ? 's' : ''}"
+                                            >
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-slate-300 group-hover:text-amber-400 group-hover:fill-amber-400 transition-colors">
+                                                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                                                </svg>
+                                            </button>
+                                        `).join('')}
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 `;
@@ -1510,3 +1555,4 @@
     </script>
 </body>
 </html>
+
