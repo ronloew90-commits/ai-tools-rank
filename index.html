@@ -1117,6 +1117,13 @@
                 return;
             }
             
+            // Track search event in GA4
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'search', {
+                    search_term: query
+                });
+            }
+            
             // Give-to-Get: Check if user can search
             if (!hasUserContributed()) {
                 const searchCount = getSearchCount();
@@ -1890,4 +1897,3 @@
     </script>
 </body>
 </html>
-
