@@ -1722,10 +1722,16 @@
                 count++;
             });
             
-            document.getElementById('toolCount').textContent = tools.size;
-            document.getElementById('taskCount').textContent = tasks.size;
-            document.getElementById('ratingCount').textContent = AppState.allRatings.length;
-            document.getElementById('avgRating').textContent = count ? (totalRating / count).toFixed(1) : '0.0';
+            // Update stats elements if they exist (stats bar may be removed)
+            const toolCountEl = document.getElementById('toolCount');
+            const taskCountEl = document.getElementById('taskCount');
+            const ratingCountEl = document.getElementById('ratingCount');
+            const avgRatingEl = document.getElementById('avgRating');
+            
+            if (toolCountEl) toolCountEl.textContent = tools.size;
+            if (taskCountEl) taskCountEl.textContent = tasks.size;
+            if (ratingCountEl) ratingCountEl.textContent = AppState.allRatings.length;
+            if (avgRatingEl) avgRatingEl.textContent = count ? (totalRating / count).toFixed(1) : '0.0';
         }
 
         function updateCharCounter(fieldId) {
@@ -1868,3 +1874,4 @@
     </script>
 </body>
 </html>
+
