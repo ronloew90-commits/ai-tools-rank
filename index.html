@@ -1117,25 +1117,32 @@
                 return;
             }
             
-            // Track search event in GA4
             if (typeof gtag !== 'undefined') {
                 gtag('event', 'search', {
                     search_term: query
                 });
             }
             
-            // Give-to-Get: Check if user can search
+            // Give-to-Get: Smart Logic (Count FIRST, then Block)
             if (!hasUserContributed()) {
-                const searchCount = getSearchCount();
-                if (searchCount >= 1) {
-                    // User has used their free search - show Value Wall
+                const lastTerm = localStorage.getItem('aiToolsRank_lastSearchTerm') || '';
+                const currentTerm = query.toLowerCase();
+                
+                const isNewTopic = lastTerm === '' || (!currentTerm.includes(lastTerm) && !lastTerm.includes(currentTerm));
+                
+                if (isNewTopic) {
+                    incrementSearchCount();
+                }
+                
+                localStorage.setItem('aiToolsRank_lastSearchTerm', currentTerm);
+
+                // BLOCKING CHECK: Allow 1 free topic (Count > 1 blocks)
+                if (getSearchCount() > 1) {
                     showValueWall();
                     return;
                 }
-                // Note: We'll increment AFTER showing results with Smart Increment logic
             }
             
-            // Show loading skeleton
             document.getElementById('searchResults').innerHTML = `
                 <div class="skeleton skeleton-card"></div>
                 <div class="skeleton skeleton-card"></div>
@@ -1146,21 +1153,6 @@
                 const results = findBestToolsForTask(query);
                 displayResults(query, results);
                 lucide.createIcons();
-                
-                // Give-to-Get: Smart Increment (Prevents blocking while typing)
-                if (!hasUserContributed() && results.length > 0) {
-                    const lastTerm = localStorage.getItem('aiToolsRank_lastSearchTerm') || '';
-                    const currentTerm = query.toLowerCase();
-                    
-                    // Only increment if this is a NEW topic (not just typing/backspacing)
-                    // We check if the new term is completely different from the last one
-                    if (lastTerm !== '' && !currentTerm.includes(lastTerm) && !lastTerm.includes(currentTerm)) {
-                        incrementSearchCount();
-                    }
-                    
-                    // Update the last term for the next keystroke check
-                    localStorage.setItem('aiToolsRank_lastSearchTerm', currentTerm);
-                }
             }, CONFIG.LIMITS.SEARCH_DEBOUNCE);
         }
 
