@@ -1024,19 +1024,14 @@
                 return true;
             }
             
-            // Check 2: Check if user has any ratings in AppState
-            if (AppState.allRatings && AppState.allRatings.length > 0) {
-                // User has ratings, mark them as contributor
-                setUserContributed();
-                return true;
-            }
-            
-            // Check 3: Check localStorage for saved ratings
+            // Check 2: Check localStorage for user's own saved ratings
+            // (Only local ratings count - these have IDs starting with 'local_')
             try {
                 const savedRatings = localStorage.getItem('aiToolsRank_ratings');
                 if (savedRatings) {
                     const parsed = JSON.parse(savedRatings);
                     if (Array.isArray(parsed) && parsed.length > 0) {
+                        // User has saved ratings locally, mark as contributor
                         setUserContributed();
                         return true;
                     }
