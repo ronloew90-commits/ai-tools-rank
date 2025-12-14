@@ -562,6 +562,12 @@
 
         function onCaptchaExpired() {
             AppState.captchaVerified = false;
+            // Show a subtle warning that CAPTCHA needs to be re-verified
+            const captchaError = document.getElementById('captchaError');
+            if (captchaError) {
+                captchaError.textContent = 'CAPTCHA expired - please verify again';
+                captchaError.classList.remove('hidden');
+            }
         }
 
         // ====================================
@@ -1013,25 +1019,44 @@
         }
         
         function hasUserContributed() {
-            // Check localStorage flag first
+            // Check 1: localStorage flag (most reliable)
             if (localStorage.getItem('aiToolsRank_hasContributed') === 'true') {
                 return true;
             }
-            // Fallback: Check if user has submitted any ratings (for users who rated before Give-to-Get was added)
-            // Local ratings have IDs starting with 'local_'
-            const hasLocalRatings = AppState.allRatings.some(r => r.id && r.id.startsWith('local_'));
-            if (hasLocalRatings) {
-                // Set the flag for future checks
+            
+            // Check 2: Check if user has any ratings in AppState
+            if (AppState.allRatings && AppState.allRatings.length > 0) {
+                // User has ratings, mark them as contributor
                 setUserContributed();
                 return true;
             }
+            
+            // Check 3: Check localStorage for saved ratings
+            try {
+                const savedRatings = localStorage.getItem('aiToolsRank_ratings');
+                if (savedRatings) {
+                    const parsed = JSON.parse(savedRatings);
+                    if (Array.isArray(parsed) && parsed.length > 0) {
+                        setUserContributed();
+                        return true;
+                    }
+                }
+            } catch (e) {
+                console.error('Error checking saved ratings:', e);
+            }
+            
             return false;
         }
         
         function setUserContributed() {
-            localStorage.setItem('aiToolsRank_hasContributed', 'true');
-            // Also reset search count so the wall doesn't flash on next search
-            localStorage.setItem('aiToolsRank_searchCount', '0');
+            try {
+                localStorage.setItem('aiToolsRank_hasContributed', 'true');
+                // Also reset search count so the wall doesn't show
+                localStorage.setItem('aiToolsRank_searchCount', '0');
+                console.log('User marked as contributor - unlimited searches unlocked');
+            } catch (e) {
+                console.error('Error setting contributor status:', e);
+            }
         }
         
         function showValueWall() {
@@ -1616,8 +1641,12 @@
             }
             
             if (!AppState.captchaVerified) {
-                document.getElementById('captchaError').classList.remove('hidden');
-                showError('Please complete the CAPTCHA');
+                const captchaError = document.getElementById('captchaError');
+                captchaError.textContent = 'Please complete the CAPTCHA verification';
+                captchaError.classList.remove('hidden');
+                showError('CAPTCHA required - please check the box above');
+                // Scroll to CAPTCHA
+                captchaError.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 return;
             }
             
@@ -1648,6 +1677,7 @@
                         submitted = true;
                     } catch (err) {
                         console.error('Firebase error:', err);
+                        // Continue with local save even if Firebase fails
                     }
                 }
                 
@@ -1659,9 +1689,10 @@
                 saveLocalRatings();
                 updateStats();
                 
-                // Give-to-Get: Mark user as contributor and unlock unlimited searches
-                const wasFirstContribution = !hasUserContributed();
+                // Give-to-Get: ALWAYS mark user as contributor after form completion
+                // This is the critical fix - set it before anything else can fail
                 setUserContributed();
+                const wasFirstContribution = getSearchCount() > 0; // They had searched before
                 
                 if (typeof gtag !== 'undefined') {
                     gtag('event', 'tool_ranking_submitted', {
@@ -1674,10 +1705,14 @@
                 // Show appropriate success message
                 if (wasFirstContribution) {
                     showSuccess('🎉 Unlimited Searches Unlocked!');
-                    // Clear the Value Wall if it was showing
-                    document.getElementById('searchResults').innerHTML = '';
                 } else {
                     showSuccess(submitted ? 'Rating submitted!' : 'Saved locally');
+                }
+                
+                // Clear the Value Wall if it was showing
+                const searchResultsEl = document.getElementById('searchResults');
+                if (searchResultsEl && searchResultsEl.innerHTML.includes('Unlock Unlimited')) {
+                    searchResultsEl.innerHTML = '';
                 }
                 
                 // Reset form
@@ -1701,7 +1736,8 @@
                 window.scrollTo({ top: 0, behavior: 'smooth' });
                 
             } catch (error) {
-                showError('Failed to submit');
+                console.error('Submit error:', error);
+                showError('Failed to submit. Please try again.');
             } finally {
                 AppState.isSubmitting = false;
                 submitBtn.disabled = false;
