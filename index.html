@@ -1152,8 +1152,7 @@
                     showValueWall();
                     return;
                 }
-                // Increment search count for non-contributors
-                incrementSearchCount();
+                // Note: We'll increment AFTER showing results, not here
             }
             
             // Show loading skeleton
@@ -1167,6 +1166,11 @@
                 const results = findBestToolsForTask(query);
                 displayResults(query, results);
                 lucide.createIcons();
+                
+                // Give-to-Get: Increment search count AFTER successful search with results
+                if (!hasUserContributed() && results.length > 0) {
+                    incrementSearchCount();
+                }
             }, CONFIG.LIMITS.SEARCH_DEBOUNCE);
         }
 
