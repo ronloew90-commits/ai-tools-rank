@@ -1656,7 +1656,6 @@
                         submitted = true;
                     } catch (err) {
                         console.error('Firebase error:', err);
-                        // Continue with local save even if Firebase fails
                     }
                 }
                 
@@ -1668,10 +1667,8 @@
                 saveLocalRatings();
                 updateStats();
                 
-                // Give-to-Get: Check if this is first contribution BEFORE setting flag
+                // Give-to-Get: ALWAYS mark user as contributor
                 const wasFirstContribution = !AppState.hasContributed && getSearchCount() > 0;
-                
-                // ALWAYS mark user as contributor after form completion
                 setUserContributed();
                 
                 if (typeof gtag !== 'undefined') {
@@ -1689,12 +1686,22 @@
                     showSuccess(submitted ? 'Rating submitted!' : 'Saved locally');
                 }
                 
-                // Clear the Value Wall if it was showing
-                const searchResultsEl = document.getElementById('searchResults');
-                if (searchResultsEl && searchResultsEl.innerHTML.includes('Unlock Unlimited')) {
-                    searchResultsEl.innerHTML = '';
-                }
+                // === THE FIX: Re-run search immediately ===
+                const currentQuery = document.getElementById('searchInput').value.trim();
                 
+                if (currentQuery.length >= CONFIG.LIMITS.MIN_SEARCH_LENGTH) {
+                    performSearch(); // <--- This reloads the results!
+                    
+                    setTimeout(() => {
+                        const resultsSection = document.getElementById('resultsSection');
+                        if (resultsSection) {
+                            resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }
+                    }, 100);
+                } else {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+
                 // Reset form
                 document.getElementById('ratingForm').reset();
                 AppState.selectedRating = 0;
@@ -1707,8 +1714,6 @@
                 // Reset to Step 1
                 goToStep(1);
                 updateStepButtons();
-                
-                window.scrollTo({ top: 0, behavior: 'smooth' });
                 
             } catch (error) {
                 console.error('Submit error:', error);
@@ -1908,3 +1913,4 @@
     </script>
 </body>
 </html>
+
