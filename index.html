@@ -1152,7 +1152,7 @@
                     showValueWall();
                     return;
                 }
-                // Note: We'll increment AFTER showing results, not here
+                // Note: We'll increment AFTER showing results with Smart Increment logic
             }
             
             // Show loading skeleton
@@ -1167,9 +1167,19 @@
                 displayResults(query, results);
                 lucide.createIcons();
                 
-                // Give-to-Get: Increment search count AFTER successful search with results
+                // Give-to-Get: Smart Increment (Prevents blocking while typing)
                 if (!hasUserContributed() && results.length > 0) {
-                    incrementSearchCount();
+                    const lastTerm = localStorage.getItem('aiToolsRank_lastSearchTerm') || '';
+                    const currentTerm = query.toLowerCase();
+                    
+                    // Only increment if this is a NEW topic (not just typing/backspacing)
+                    // We check if the new term is completely different from the last one
+                    if (lastTerm !== '' && !currentTerm.includes(lastTerm) && !lastTerm.includes(currentTerm)) {
+                        incrementSearchCount();
+                    }
+                    
+                    // Update the last term for the next keystroke check
+                    localStorage.setItem('aiToolsRank_lastSearchTerm', currentTerm);
                 }
             }, CONFIG.LIMITS.SEARCH_DEBOUNCE);
         }
