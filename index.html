@@ -877,7 +877,6 @@
             const results = new Map();
             
             AppState.allRatings.forEach(rating => {
-                // Get words from all searchable fields (don't expand - keep original)
                 const taskText = (rating.task || '').toLowerCase();
                 const taskTypeText = (rating.taskType || '').toLowerCase();
                 const feedbackText = (rating.feedback || '').toLowerCase();
@@ -892,41 +891,40 @@
                 let similarity = 0;
                 let matchedOriginalTerm = false;
                 
-                // Check each search word (including expanded synonyms)
                 searchWords.forEach(sw => {
-                    // Check if this is an original search term (not a synonym)
                     const isOriginalTerm = rawSearchWords.includes(sw);
                     
-                    // Exact match in task description (highest priority)
+                    // --- LOGIC UPDATE: Synonyms are now nearly equal to exact matches ---
+                    
+                    // Task description matches
                     if (taskWords.includes(sw)) {
-                        similarity += isOriginalTerm ? 50 : 25;
+                        similarity += isOriginalTerm ? 50 : 45; // Synonyms get 45 (was 25)
                         if (isOriginalTerm) matchedOriginalTerm = true;
                     }
-                    // Exact match in task type (high priority)
+                    // Task type matches
                     else if (taskTypeWords.includes(sw)) {
-                        similarity += isOriginalTerm ? 30 : 15;
+                        similarity += isOriginalTerm ? 30 : 25;
                         if (isOriginalTerm) matchedOriginalTerm = true;
                     }
-                    // Exact match in tool name
+                    // Tool name matches
                     else if (toolNameWords.includes(sw)) {
-                        similarity += isOriginalTerm ? 25 : 12;
+                        similarity += isOriginalTerm ? 25 : 20;
                         if (isOriginalTerm) matchedOriginalTerm = true;
                     }
-                    // Exact match in feedback
+                    // Feedback matches
                     else if (feedbackWords.includes(sw)) {
-                        similarity += isOriginalTerm ? 35 : 15;
+                        similarity += isOriginalTerm ? 35 : 30;
                         if (isOriginalTerm) matchedOriginalTerm = true;
                     }
-                    // Partial match anywhere
+                    // Partial matches
                     else if (allWords.some(w => w.includes(sw) || sw.includes(w))) {
-                        similarity += isOriginalTerm ? 10 : 5;
+                        similarity += isOriginalTerm ? 15 : 10;
                         if (isOriginalTerm) matchedOriginalTerm = true;
                     }
                 });
                 
-                // Only include results that matched at least one original search term
-                // OR have high similarity from synonym matches
-                if (matchedOriginalTerm && similarity > 20) {
+                // Lowered threshold to 15 to catch more results
+                if (matchedOriginalTerm && similarity > 15) {
                     const key = normalizeToolName(rating.toolName);
                     if (!results.has(key)) {
                         results.set(key, {
@@ -958,9 +956,10 @@
                     const reviewCount = tool.ratings.length;
                     const bayesianScore = calculateBayesianScore(avgRating, reviewCount);
                     
-                    // Weighted score: relevance matters more than just rating
-                    // Formula: (relevance * 2) + (bayesianScore * 10)
-                    const weightedScore = (tool.maxSimilarity * 2) + (bayesianScore * 10);
+                    // --- CRITICAL UPDATE: HEAVY WEIGHT ON QUALITY ---
+                    // Multiplier increased to 25. This means 1 Star = 25 Points.
+                    // This allows a 4.5 star tool to beat a 3.5 star tool even with slightly worse keywords.
+                    const weightedScore = (tool.maxSimilarity * 2) + (bayesianScore * 25);
                     
                     return {
                         name: tool.name,
@@ -972,7 +971,6 @@
                         tasks: tool.tasks.sort((a, b) => b.similarity - a.similarity || new Date(b.createdAt) - new Date(a.createdAt))
                     };
                 })
-                // Sort by weighted score (balances relevance + rating)
                 .sort((a, b) => b.weightedScore - a.weightedScore)
                 .slice(0, CONFIG.LIMITS.MAX_RATINGS_DISPLAY);
         }
@@ -1900,4 +1898,3 @@
     </script>
 </body>
 </html>
-
