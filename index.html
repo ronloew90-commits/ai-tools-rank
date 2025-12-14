@@ -247,159 +247,230 @@
             </div>
         </div>
 
-        <!-- Rate a Tool Form -->
+        <!-- Rate a Tool Form - 3-Step Progressive Disclosure -->
         <div class="max-w-2xl mx-auto px-4">
             <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-                <!-- Header -->
+                <!-- Header with Progress -->
                 <div class="bg-gradient-to-r from-indigo-600 to-violet-600 px-5 sm:px-6 py-5">
-                    <div class="flex items-center gap-3">
-                        <div class="bg-white/20 p-2.5 rounded-xl">
-                            <i data-lucide="sparkles" class="w-5 h-5 sm:w-6 sm:h-6 text-white"></i>
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="bg-white/20 p-2.5 rounded-xl">
+                                <i data-lucide="sparkles" class="w-5 h-5 sm:w-6 sm:h-6 text-white"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-lg sm:text-xl font-bold text-white">Rate an AI Tool</h2>
+                                <p class="text-indigo-100 text-sm">Share your experience and help others</p>
+                            </div>
                         </div>
-                        <div>
-                            <h2 class="text-lg sm:text-xl font-bold text-white">Rate an AI Tool</h2>
-                            <p class="text-indigo-100 text-sm">Share your experience and help others</p>
+                        <!-- Step Counter -->
+                        <div class="text-white/90 text-sm font-medium bg-white/20 px-3 py-1.5 rounded-full" id="stepCounter">
+                            Step 1 of 3
                         </div>
+                    </div>
+                    <!-- Progress Bar -->
+                    <div class="mt-4 h-1.5 bg-white/20 rounded-full overflow-hidden">
+                        <div id="progressBar" class="h-full bg-white rounded-full transition-all duration-500 ease-out" style="width: 33.33%"></div>
                     </div>
                 </div>
 
                 <!-- Form -->
-                <form id="ratingForm" class="p-5 sm:p-6 space-y-5 sm:space-y-6" novalidate>
+                <form id="ratingForm" class="p-5 sm:p-6" novalidate>
                     <!-- Messages -->
-                    <div class="message items-center gap-2 p-4 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200" id="successMessage">
+                    <div class="message items-center gap-2 p-4 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200 mb-5" id="successMessage">
                         <i data-lucide="check-circle" class="w-5 h-5"></i>
                         <span id="successText">Rating saved!</span>
                     </div>
                     
-                    <div class="message items-center gap-2 p-4 rounded-xl bg-red-50 text-red-700 border border-red-200" id="errorMessage">
+                    <div class="message items-center gap-2 p-4 rounded-xl bg-red-50 text-red-700 border border-red-200 mb-5" id="errorMessage">
                         <i data-lucide="alert-circle" class="w-5 h-5"></i>
                         <span id="errorText">Something went wrong</span>
                     </div>
-                    
-                    <!-- Tool Name -->
-                    <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-2">
-                            Tool Name <span class="text-rose-500">*</span>
-                        </label>
-                        <input
-                            type="text"
-                            id="toolName"
-                            required
-                            maxlength="50"
-                            placeholder="e.g., ChatGPT, Midjourney"
-                            class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 transition-all outline-none text-slate-800 placeholder:text-slate-400"
+
+                    <!-- ========== STEP 1: The Hook ========== -->
+                    <div id="formStep1" class="form-step">
+                        <div class="text-center mb-6">
+                            <div class="inline-flex items-center justify-center w-16 h-16 bg-indigo-100 rounded-2xl mb-4">
+                                <i data-lucide="search" class="w-8 h-8 text-indigo-600"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-slate-800 mb-2">Which AI tool did you use?</h3>
+                            <p class="text-slate-500">Start by telling us the name of the tool</p>
+                        </div>
+                        
+                        <div class="mb-6">
+                            <input
+                                type="text"
+                                id="toolName"
+                                required
+                                maxlength="50"
+                                placeholder="e.g., ChatGPT, Midjourney, Claude..."
+                                class="w-full px-5 py-4 rounded-xl border-2 border-slate-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 transition-all outline-none text-slate-800 placeholder:text-slate-400 text-lg text-center"
+                            >
+                        </div>
+                        
+                        <button
+                            type="button"
+                            onclick="goToStep(2)"
+                            id="step1NextBtn"
+                            class="w-full bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white font-semibold py-4 px-6 rounded-xl shadow-lg shadow-indigo-200 transform transition-all duration-200 hover:shadow-xl hover:-translate-y-0.5 btn-press disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none"
+                            disabled
                         >
+                            Next →
+                        </button>
                     </div>
 
-                    <!-- Task Description -->
-                    <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-2">
-                            What did you use it for? <span class="text-rose-500">*</span>
-                        </label>
-                        <textarea
-                            id="taskDescription"
-                            required
-                            maxlength="200"
-                            placeholder="Describe the task you used this tool for..."
-                            rows="2"
-                            class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 transition-all outline-none text-slate-800 placeholder:text-slate-400 resize-none"
-                        ></textarea>
-                        <div class="text-right text-xs text-slate-400 mt-1" id="taskCounter">0/200</div>
-                    </div>
-
-                    <!-- Task Type Chips -->
-                    <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-3">
-                            Task Type <span class="text-slate-400">(optional)</span>
-                        </label>
-                        <div class="flex flex-wrap gap-2" id="taskTypeChips">
-                            <button type="button" data-type="Writing" class="task-chip px-4 py-2 rounded-full text-sm font-medium bg-white text-slate-600 border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 transition-all btn-press">✍️ Writing</button>
-                            <button type="button" data-type="Image generation" class="task-chip px-4 py-2 rounded-full text-sm font-medium bg-white text-slate-600 border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 transition-all btn-press">🎨 Image Gen</button>
-                            <button type="button" data-type="Data analysis" class="task-chip px-4 py-2 rounded-full text-sm font-medium bg-white text-slate-600 border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 transition-all btn-press">📊 Data</button>
-                            <button type="button" data-type="Coding" class="task-chip px-4 py-2 rounded-full text-sm font-medium bg-white text-slate-600 border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 transition-all btn-press">💻 Coding</button>
-                            <button type="button" data-type="Research" class="task-chip px-4 py-2 rounded-full text-sm font-medium bg-white text-slate-600 border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 transition-all btn-press">🔬 Research</button>
-                            <button type="button" data-type="Planning" class="task-chip px-4 py-2 rounded-full text-sm font-medium bg-white text-slate-600 border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 transition-all btn-press">📋 Planning</button>
-                            <button type="button" data-type="Marketing" class="task-chip px-4 py-2 rounded-full text-sm font-medium bg-white text-slate-600 border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 transition-all btn-press">📢 Marketing</button>
-                            <button type="button" data-type="Design" class="task-chip px-4 py-2 rounded-full text-sm font-medium bg-white text-slate-600 border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 transition-all btn-press">🎯 Design</button>
-                            <button type="button" data-type="Automation" class="task-chip px-4 py-2 rounded-full text-sm font-medium bg-white text-slate-600 border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 transition-all btn-press">⚙️ Automation</button>
-                            <button type="button" data-type="Audio/Video" class="task-chip px-4 py-2 rounded-full text-sm font-medium bg-white text-slate-600 border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 transition-all btn-press">🎬 Audio/Video</button>
-                            <button type="button" data-type="Translation" class="task-chip px-4 py-2 rounded-full text-sm font-medium bg-white text-slate-600 border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 transition-all btn-press">🌍 Translation</button>
-                            <button type="button" data-type="Other" class="task-chip px-4 py-2 rounded-full text-sm font-medium bg-white text-slate-600 border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 transition-all btn-press">📁 Other</button>
+                    <!-- ========== STEP 2: The Opinion ========== -->
+                    <div id="formStep2" class="form-step hidden">
+                        <div class="text-center mb-6">
+                            <div class="inline-flex items-center justify-center w-16 h-16 bg-amber-100 rounded-2xl mb-4">
+                                <i data-lucide="star" class="w-8 h-8 text-amber-500"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-slate-800 mb-2">How would you rate it?</h3>
+                            <p class="text-slate-500">Select your rating and what you used it for</p>
                         </div>
-                    </div>
+                        
+                        <!-- Star Rating -->
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium text-slate-700 mb-3 text-center">
+                                Your Rating <span class="text-rose-500">*</span>
+                            </label>
+                            <div class="flex justify-center gap-2" id="starRating">
+                                <button type="button" data-rating="1" class="star-btn transition-all duration-200 p-2 rounded-xl hover:bg-amber-50">
+                                    <i data-lucide="star" class="w-10 h-10 fill-slate-200 text-slate-300 star-icon transition-all"></i>
+                                </button>
+                                <button type="button" data-rating="2" class="star-btn transition-all duration-200 p-2 rounded-xl hover:bg-amber-50">
+                                    <i data-lucide="star" class="w-10 h-10 fill-slate-200 text-slate-300 star-icon transition-all"></i>
+                                </button>
+                                <button type="button" data-rating="3" class="star-btn transition-all duration-200 p-2 rounded-xl hover:bg-amber-50">
+                                    <i data-lucide="star" class="w-10 h-10 fill-slate-200 text-slate-300 star-icon transition-all"></i>
+                                </button>
+                                <button type="button" data-rating="4" class="star-btn transition-all duration-200 p-2 rounded-xl hover:bg-amber-50">
+                                    <i data-lucide="star" class="w-10 h-10 fill-slate-200 text-slate-300 star-icon transition-all"></i>
+                                </button>
+                                <button type="button" data-rating="5" class="star-btn transition-all duration-200 p-2 rounded-xl hover:bg-amber-50">
+                                    <i data-lucide="star" class="w-10 h-10 fill-slate-200 text-slate-300 star-icon transition-all"></i>
+                                </button>
+                            </div>
+                        </div>
 
-                    <!-- Feedback -->
-                    <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-2">
-                            Your Feedback <span class="text-rose-500">*</span>
-                        </label>
-                        <textarea
-                            id="userFeedback"
-                            required
-                            maxlength="500"
-                            placeholder="What worked well? What didn't?"
-                            rows="3"
-                            class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 transition-all outline-none text-slate-800 placeholder:text-slate-400 resize-none"
-                        ></textarea>
-                        <div class="text-right text-xs text-slate-400 mt-1" id="feedbackCounter">0/500</div>
-                    </div>
-
-                    <!-- Pricing -->
-                    <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-2">
-                            Pricing <span class="text-slate-400">(optional)</span>
-                        </label>
-                        <select id="toolPrice" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 transition-all outline-none text-slate-800 bg-white">
-                            <option value="">Select pricing...</option>
-                            <option value="Free">Free</option>
-                            <option value="Free with limits">Free (limited)</option>
-                            <option value="$1-10/month">$1-10/mo</option>
-                            <option value="$11-20/month">$11-20/mo</option>
-                            <option value="$21-50/month">$21-50/mo</option>
-                            <option value="$50+/month">$50+/mo</option>
-                            <option value="Usage-based">Usage-based</option>
-                        </select>
-                    </div>
-
-                    <!-- Rating Stars -->
-                    <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-3">
-                            Your Rating <span class="text-rose-500">*</span>
-                        </label>
-                        <div class="flex gap-1" id="starRating">
-                            <button type="button" data-rating="1" class="star-btn transition-transform star-hover p-1">
-                                <i data-lucide="star" class="w-8 h-8 fill-slate-200 text-slate-300 star-icon"></i>
+                        <!-- Task Type Chips -->
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium text-slate-700 mb-3 text-center">
+                                What type of task? <span class="text-rose-500">*</span>
+                            </label>
+                            <div class="flex flex-wrap justify-center gap-2" id="taskTypeChips">
+                                <button type="button" data-type="Writing" class="task-chip px-4 py-2.5 rounded-full text-sm font-medium bg-white text-slate-600 border-2 border-slate-200 hover:border-indigo-400 hover:bg-indigo-50 transition-all btn-press">✍️ Writing</button>
+                                <button type="button" data-type="Image generation" class="task-chip px-4 py-2.5 rounded-full text-sm font-medium bg-white text-slate-600 border-2 border-slate-200 hover:border-indigo-400 hover:bg-indigo-50 transition-all btn-press">🎨 Image Gen</button>
+                                <button type="button" data-type="Data analysis" class="task-chip px-4 py-2.5 rounded-full text-sm font-medium bg-white text-slate-600 border-2 border-slate-200 hover:border-indigo-400 hover:bg-indigo-50 transition-all btn-press">📊 Data</button>
+                                <button type="button" data-type="Coding" class="task-chip px-4 py-2.5 rounded-full text-sm font-medium bg-white text-slate-600 border-2 border-slate-200 hover:border-indigo-400 hover:bg-indigo-50 transition-all btn-press">💻 Coding</button>
+                                <button type="button" data-type="Research" class="task-chip px-4 py-2.5 rounded-full text-sm font-medium bg-white text-slate-600 border-2 border-slate-200 hover:border-indigo-400 hover:bg-indigo-50 transition-all btn-press">🔬 Research</button>
+                                <button type="button" data-type="Marketing" class="task-chip px-4 py-2.5 rounded-full text-sm font-medium bg-white text-slate-600 border-2 border-slate-200 hover:border-indigo-400 hover:bg-indigo-50 transition-all btn-press">📢 Marketing</button>
+                                <button type="button" data-type="Design" class="task-chip px-4 py-2.5 rounded-full text-sm font-medium bg-white text-slate-600 border-2 border-slate-200 hover:border-indigo-400 hover:bg-indigo-50 transition-all btn-press">🎯 Design</button>
+                                <button type="button" data-type="Audio/Video" class="task-chip px-4 py-2.5 rounded-full text-sm font-medium bg-white text-slate-600 border-2 border-slate-200 hover:border-indigo-400 hover:bg-indigo-50 transition-all btn-press">🎬 Audio/Video</button>
+                                <button type="button" data-type="Other" class="task-chip px-4 py-2.5 rounded-full text-sm font-medium bg-white text-slate-600 border-2 border-slate-200 hover:border-indigo-400 hover:bg-indigo-50 transition-all btn-press">📁 Other</button>
+                            </div>
+                        </div>
+                        
+                        <div class="flex gap-3">
+                            <button
+                                type="button"
+                                onclick="goToStep(1)"
+                                class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-4 px-6 rounded-xl transition-all duration-200 btn-press"
+                            >
+                                ← Back
                             </button>
-                            <button type="button" data-rating="2" class="star-btn transition-transform star-hover p-1">
-                                <i data-lucide="star" class="w-8 h-8 fill-slate-200 text-slate-300 star-icon"></i>
-                            </button>
-                            <button type="button" data-rating="3" class="star-btn transition-transform star-hover p-1">
-                                <i data-lucide="star" class="w-8 h-8 fill-slate-200 text-slate-300 star-icon"></i>
-                            </button>
-                            <button type="button" data-rating="4" class="star-btn transition-transform star-hover p-1">
-                                <i data-lucide="star" class="w-8 h-8 fill-slate-200 text-slate-300 star-icon"></i>
-                            </button>
-                            <button type="button" data-rating="5" class="star-btn transition-transform star-hover p-1">
-                                <i data-lucide="star" class="w-8 h-8 fill-slate-200 text-slate-300 star-icon"></i>
+                            <button
+                                type="button"
+                                onclick="goToStep(3)"
+                                id="step2NextBtn"
+                                class="flex-[2] bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white font-semibold py-4 px-6 rounded-xl shadow-lg shadow-indigo-200 transform transition-all duration-200 hover:shadow-xl hover:-translate-y-0.5 btn-press disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none"
+                                disabled
+                            >
+                                Next →
                             </button>
                         </div>
                     </div>
 
-                    <!-- reCAPTCHA -->
-                    <div class="flex flex-col items-center py-4">
-                        <div class="g-recaptcha" data-sitekey="6LfBRhgsAAAAAMJGVjoRF3to6p8LsssvTSs3lpRR" data-callback="onCaptchaSuccess" data-expired-callback="onCaptchaExpired"></div>
-                        <div class="text-rose-500 text-sm mt-2 hidden" id="captchaError">Please complete the CAPTCHA</div>
-                        <p class="text-xs text-slate-400 mt-2">Please verify you're human</p>
-                    </div>
+                    <!-- ========== STEP 3: The Context ========== -->
+                    <div id="formStep3" class="form-step hidden">
+                        <div class="text-center mb-6">
+                            <div class="inline-flex items-center justify-center w-16 h-16 bg-emerald-100 rounded-2xl mb-4">
+                                <i data-lucide="message-square" class="w-8 h-8 text-emerald-600"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-slate-800 mb-2">Tell us more!</h3>
+                            <p class="text-slate-500">Help others with the details</p>
+                        </div>
+                        
+                        <!-- Task Description -->
+                        <div class="mb-5">
+                            <label class="block text-sm font-medium text-slate-700 mb-2">
+                                What did you use it for? <span class="text-rose-500">*</span>
+                            </label>
+                            <textarea
+                                id="taskDescription"
+                                required
+                                maxlength="200"
+                                placeholder="e.g., Writing a blog post about AI trends..."
+                                rows="2"
+                                class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 transition-all outline-none text-slate-800 placeholder:text-slate-400 resize-none"
+                            ></textarea>
+                            <div class="text-right text-xs text-slate-400 mt-1" id="taskCounter">0/200</div>
+                        </div>
 
-                    <!-- Submit Button -->
-                    <button
-                        type="submit"
-                        id="submitBtn"
-                        class="w-full bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white font-semibold py-4 px-6 rounded-xl shadow-lg shadow-indigo-200 transform transition-all duration-200 hover:shadow-xl hover:-translate-y-0.5 btn-press focus:outline-none focus:ring-4 focus:ring-indigo-100"
-                    >
-                        <span id="submitBtnText">Submit Rating</span>
-                    </button>
+                        <!-- Feedback -->
+                        <div class="mb-5">
+                            <label class="block text-sm font-medium text-slate-700 mb-2">
+                                Your Feedback <span class="text-rose-500">*</span>
+                            </label>
+                            <textarea
+                                id="userFeedback"
+                                required
+                                maxlength="500"
+                                placeholder="What worked well? What could be better?"
+                                rows="3"
+                                class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 transition-all outline-none text-slate-800 placeholder:text-slate-400 resize-none"
+                            ></textarea>
+                            <div class="text-right text-xs text-slate-400 mt-1" id="feedbackCounter">0/500</div>
+                        </div>
+
+                        <!-- Your Name -->
+                        <div class="mb-5">
+                            <label class="block text-sm font-medium text-slate-700 mb-2">
+                                Your Name <span class="text-rose-500">*</span>
+                            </label>
+                            <input
+                                type="text"
+                                id="reviewerName"
+                                required
+                                maxlength="50"
+                                placeholder="How should we credit you?"
+                                class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 transition-all outline-none text-slate-800 placeholder:text-slate-400"
+                            >
+                        </div>
+
+                        <!-- reCAPTCHA -->
+                        <div class="flex flex-col items-center py-4">
+                            <div class="g-recaptcha" data-sitekey="6LfBRhgsAAAAAMJGVjoRF3to6p8LsssvTSs3lpRR" data-callback="onCaptchaSuccess" data-expired-callback="onCaptchaExpired"></div>
+                            <div class="text-rose-500 text-sm mt-2 hidden" id="captchaError">Please complete the CAPTCHA</div>
+                            <p class="text-xs text-slate-400 mt-2">Please verify you're human</p>
+                        </div>
+                        
+                        <div class="flex gap-3">
+                            <button
+                                type="button"
+                                onclick="goToStep(2)"
+                                class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-4 px-6 rounded-xl transition-all duration-200 btn-press"
+                            >
+                                ← Back
+                            </button>
+                            <button
+                                type="submit"
+                                id="submitBtn"
+                                class="flex-[2] bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-semibold py-4 px-6 rounded-xl shadow-lg shadow-emerald-200 transform transition-all duration-200 hover:shadow-xl hover:-translate-y-0.5 btn-press focus:outline-none focus:ring-4 focus:ring-emerald-100"
+                            >
+                                <span id="submitBtnText">Submit Rating ✓</span>
+                            </button>
+                        </div>
+                    </div>
                 </form>
             </div>
         </div>
@@ -466,7 +537,8 @@
             isMobile: /iPhone|iPad|iPod|Android/i.test(navigator.userAgent),
             isLoading: true,
             captchaVerified: false,
-            isPulling: false
+            isPulling: false,
+            currentStep: 1
         };
 
         // reCAPTCHA callbacks
@@ -977,32 +1049,128 @@
             lucide.createIcons();
         }
 
-        // Quick-Tap Rating: Pre-fill form and scroll to it
-        function quickRate(toolName, rating) {
-            // Pre-fill the tool name
-            document.getElementById('toolName').value = toolName;
-            
-            // Pre-select the star rating
-            AppState.selectedRating = rating;
-            document.querySelectorAll('.star-btn').forEach((star, idx) => {
-                const starIcon = star.querySelector('[data-lucide="star"]');
-                if (idx < rating) {
-                    starIcon.classList.remove('fill-slate-200', 'text-slate-200');
-                    starIcon.classList.add('fill-amber-400', 'text-amber-400');
-                } else {
-                    starIcon.classList.remove('fill-amber-400', 'text-amber-400');
-                    starIcon.classList.add('fill-slate-200', 'text-slate-200');
+        // ====================================
+        // MULTI-STEP FORM NAVIGATION
+        // ====================================
+        
+        function goToStep(step) {
+            // Validate current step before proceeding
+            if (step > AppState.currentStep) {
+                if (!validateStep(AppState.currentStep)) {
+                    return;
                 }
+            }
+            
+            // Hide all steps
+            document.querySelectorAll('.form-step').forEach(el => {
+                el.classList.add('hidden');
             });
+            
+            // Show target step
+            document.getElementById(`formStep${step}`).classList.remove('hidden');
+            
+            // Update progress bar
+            const progress = (step / 3) * 100;
+            document.getElementById('progressBar').style.width = `${progress}%`;
+            
+            // Update step counter
+            document.getElementById('stepCounter').textContent = `Step ${step} of 3`;
+            
+            // Update state
+            AppState.currentStep = step;
+            
+            // Reinitialize icons
             lucide.createIcons();
             
-            // Scroll to form
+            // Scroll form into view
             document.getElementById('ratingForm').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+        
+        function validateStep(step) {
+            if (step === 1) {
+                const toolName = document.getElementById('toolName').value.trim();
+                if (!toolName) {
+                    document.getElementById('toolName').focus();
+                    document.getElementById('toolName').classList.add('border-rose-500');
+                    setTimeout(() => {
+                        document.getElementById('toolName').classList.remove('border-rose-500');
+                    }, 2000);
+                    return false;
+                }
+                return true;
+            }
             
-            // Focus on task description after a short delay
+            if (step === 2) {
+                const hasRating = AppState.selectedRating > 0;
+                const hasTaskType = AppState.selectedTaskType !== null;
+                
+                if (!hasRating || !hasTaskType) {
+                    // Show visual feedback
+                    if (!hasRating) {
+                        document.getElementById('starRating').classList.add('animate-pulse');
+                        setTimeout(() => {
+                            document.getElementById('starRating').classList.remove('animate-pulse');
+                        }, 1000);
+                    }
+                    if (!hasTaskType) {
+                        document.getElementById('taskTypeChips').classList.add('animate-pulse');
+                        setTimeout(() => {
+                            document.getElementById('taskTypeChips').classList.remove('animate-pulse');
+                        }, 1000);
+                    }
+                    return false;
+                }
+                return true;
+            }
+            
+            return true;
+        }
+        
+        function updateStepButtons() {
+            // Step 1: Enable next if tool name is filled
+            const toolName = document.getElementById('toolName').value.trim();
+            const step1Btn = document.getElementById('step1NextBtn');
+            if (step1Btn) {
+                step1Btn.disabled = !toolName;
+            }
+            
+            // Step 2: Enable next if rating AND task type are selected
+            const step2Btn = document.getElementById('step2NextBtn');
+            if (step2Btn) {
+                step2Btn.disabled = !(AppState.selectedRating > 0 && AppState.selectedTaskType);
+            }
+        }
+
+        // Quick-Tap Rating: Pre-fill form and jump to Step 2
+        function quickRate(toolName, rating) {
+            // Pre-fill the tool name (Step 1)
+            document.getElementById('toolName').value = toolName;
+            
+            // Pre-select the star rating (Step 2)
+            AppState.selectedRating = rating;
+            document.querySelectorAll('#starRating .star-btn').forEach((star, idx) => {
+                const starIcon = star.querySelector('[data-lucide="star"]');
+                if (starIcon) {
+                    if (idx < rating) {
+                        starIcon.classList.remove('fill-slate-200', 'text-slate-300');
+                        starIcon.classList.add('fill-amber-400', 'text-amber-400');
+                    } else {
+                        starIcon.classList.remove('fill-amber-400', 'text-amber-400');
+                        starIcon.classList.add('fill-slate-200', 'text-slate-300');
+                    }
+                }
+            });
+            
+            // Update button states
+            updateStepButtons();
+            
+            // Jump directly to Step 2 (skipping Step 1 since tool name is pre-filled)
+            goToStep(2);
+            
+            // Reinitialize icons after DOM update
             setTimeout(() => {
-                document.getElementById('taskDescription').focus();
-            }, 500);
+                lucide.createIcons();
+            }, 100);
         }
 
         function highlightText(text, query) {
@@ -1053,15 +1221,11 @@
                 // Debug logging - check console to see values
                 console.log(`Tool: ${tool.name}, Index: ${index}, Relevance: ${tool.relevance}, Show Badge: ${tool.relevance >= 20 && index === 0}`);
                 
-                // Check if this tool deserves a "Best Match" badge
-                // Show if: #1 ranked result AND has high relevance (>=20)
-                const showBestMatch = tool.relevance >= 20 && index === 0;
-                
-                // Best Match badge HTML
-                const bestMatchBadge = showBestMatch ? `
-                    <span class="inline-flex items-center gap-1 bg-emerald-100 text-emerald-700 text-xs font-medium px-2 py-1 rounded-full ml-2">
-                        <i data-lucide="target" class="w-3 h-3"></i>
-                        Best Match
+                // Best Match badge - shows when #1 ranked result has high relevance (>=20)
+                // This fixes the badge not showing when a relevant tool is ranked #1
+                const bestMatchBadge = tool.relevance >= 20 && index === 0 ? `
+                    <span class="inline-flex items-center gap-1.5 ml-2 bg-indigo-500 text-white text-xs font-semibold px-3 py-1.5 rounded-full shadow-md shadow-indigo-300 transform -rotate-1">
+                        <i data-lucide="target" class="w-3 h-3"></i> Best Match
                     </span>
                 ` : '';
                 
@@ -1210,7 +1374,7 @@
             const toolName = document.getElementById('toolName').value.trim();
             const taskDescription = document.getElementById('taskDescription').value.trim();
             const userFeedback = document.getElementById('userFeedback').value.trim();
-            const toolPrice = document.getElementById('toolPrice').value;
+            const reviewerName = document.getElementById('reviewerName').value.trim();
             
             if (!validateInput(toolName, CONFIG.LIMITS.MAX_TOOL_NAME)) {
                 showError('Tool name is invalid or too long');
@@ -1224,6 +1388,11 @@
             
             if (!validateInput(userFeedback, CONFIG.LIMITS.MAX_FEEDBACK)) {
                 showError('Feedback is required');
+                return;
+            }
+            
+            if (!reviewerName) {
+                showError('Please enter your name');
                 return;
             }
             
@@ -1251,8 +1420,8 @@
                     task: sanitizeHTML(taskDescription.toLowerCase()),
                     taskType: AppState.selectedTaskType || null,
                     feedback: sanitizeHTML(userFeedback),
+                    reviewerName: sanitizeHTML(reviewerName),
                     rating: AppState.selectedRating,
-                    price: toolPrice || 'Not specified',
                     createdAt: new Date().toISOString(),
                     timestamp: Date.now()
                 };
@@ -1296,6 +1465,10 @@
                 updateCharCounter('taskDescription');
                 updateCharCounter('userFeedback');
                 
+                // Reset to Step 1
+                goToStep(1);
+                updateStepButtons();
+                
                 if (typeof grecaptcha !== 'undefined') {
                     grecaptcha.reset();
                 }
@@ -1307,7 +1480,7 @@
             } finally {
                 AppState.isSubmitting = false;
                 submitBtn.disabled = false;
-                document.getElementById('submitBtnText').textContent = 'Submit Rating';
+                document.getElementById('submitBtnText').textContent = 'Submit Rating ✓';
             }
         }
 
@@ -1426,11 +1599,14 @@
             // Form
             document.getElementById('ratingForm').addEventListener('submit', submitRating);
             
+            // Step 1: Tool Name input - enable/disable Next button
+            document.getElementById('toolName').addEventListener('input', updateStepButtons);
+            
             // Character counters
             document.getElementById('taskDescription').addEventListener('input', () => updateCharCounter('taskDescription'));
             document.getElementById('userFeedback').addEventListener('input', () => updateCharCounter('userFeedback'));
             
-            // Task Type chips
+            // Task Type chips - with step button update
             document.querySelectorAll('.task-chip').forEach(chip => {
                 chip.addEventListener('click', function() {
                     const type = this.dataset.type;
@@ -1439,25 +1615,31 @@
                     } else {
                         selectTaskType(type);
                     }
+                    updateStepButtons(); // Update Step 2 Next button
                 });
             });
             
-            // Star rating
+            // Star rating - with step button update
             document.querySelectorAll('.star-btn').forEach(btn => {
                 btn.addEventListener('click', function() {
                     AppState.selectedRating = parseInt(this.dataset.rating);
                     updateStars();
+                    updateStepButtons(); // Update Step 2 Next button
                 });
                 
                 btn.addEventListener('touchstart', function(e) {
                     e.preventDefault();
                     AppState.selectedRating = parseInt(this.dataset.rating);
                     updateStars();
+                    updateStepButtons(); // Update Step 2 Next button
                     if (window.navigator.vibrate) {
                         window.navigator.vibrate(10);
                     }
                 });
             });
+            
+            // Initialize step buttons state
+            updateStepButtons();
         }
 
         // ====================================
