@@ -540,7 +540,8 @@
             isMobile: /iPhone|iPad|iPod|Android/i.test(navigator.userAgent),
             isLoading: true,
             isPulling: false,
-            currentStep: 1
+            currentStep: 1,
+            hasContributed: false // In-memory backup flag
         };
 
         // ====================================
@@ -990,19 +991,23 @@
         }
         
         function hasUserContributed() {
-            // Check 1: localStorage flag (most reliable)
+            // Check 0: In-memory flag (instant, no localStorage delay)
+            if (AppState.hasContributed) {
+                return true;
+            }
+            
+            // Check 1: localStorage flag
             if (localStorage.getItem('aiToolsRank_hasContributed') === 'true') {
+                AppState.hasContributed = true; // Sync to memory
                 return true;
             }
             
             // Check 2: Check localStorage for user's own saved ratings
-            // (Only local ratings count - these have IDs starting with 'local_')
             try {
                 const savedRatings = localStorage.getItem('aiToolsRank_ratings');
                 if (savedRatings) {
                     const parsed = JSON.parse(savedRatings);
                     if (Array.isArray(parsed) && parsed.length > 0) {
-                        // User has saved ratings locally, mark as contributor
                         setUserContributed();
                         return true;
                     }
@@ -1015,10 +1020,14 @@
         }
         
         function setUserContributed() {
+            // Set in-memory flag FIRST (instant effect)
+            AppState.hasContributed = true;
+            
             try {
                 localStorage.setItem('aiToolsRank_hasContributed', 'true');
-                // Also reset search count so the wall doesn't show
+                // Reset search count and last term for fresh start
                 localStorage.setItem('aiToolsRank_searchCount', '0');
+                localStorage.removeItem('aiToolsRank_lastSearchTerm');
                 console.log('User marked as contributor - unlimited searches unlocked');
             } catch (e) {
                 console.error('Error setting contributor status:', e);
@@ -1659,10 +1668,11 @@
                 saveLocalRatings();
                 updateStats();
                 
-                // Give-to-Get: ALWAYS mark user as contributor after form completion
-                // This is the critical fix - set it before anything else can fail
+                // Give-to-Get: Check if this is first contribution BEFORE setting flag
+                const wasFirstContribution = !AppState.hasContributed && getSearchCount() > 0;
+                
+                // ALWAYS mark user as contributor after form completion
                 setUserContributed();
-                const wasFirstContribution = getSearchCount() > 0; // They had searched before
                 
                 if (typeof gtag !== 'undefined') {
                     gtag('event', 'tool_ranking_submitted', {
