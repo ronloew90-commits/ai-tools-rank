@@ -1004,7 +1004,7 @@
             
             // Check 2: Check localStorage for user's own saved ratings
             try {
-                const savedRatings = localStorage.getItem('aiToolsRank_ratings');
+                const savedRatings = localStorage.getItem('aiToolRatings');
                 if (savedRatings) {
                     const parsed = JSON.parse(savedRatings);
                     if (Array.isArray(parsed) && parsed.length > 0) {
@@ -1035,8 +1035,8 @@
         }
         
         function showValueWall() {
-            const resultsSection = document.getElementById('resultsSection');
-            resultsSection.innerHTML = `
+            const searchResults = document.getElementById('searchResults');
+            searchResults.innerHTML = `
                 <div class="relative">
                     <!-- Blurred background hint -->
                     <div class="opacity-30 blur-sm pointer-events-none">
@@ -1905,4 +1905,3 @@
     </script>
 </body>
 </html>
-
