@@ -1645,12 +1645,14 @@
                 if (currentQuery.length >= CONFIG.LIMITS.MIN_SEARCH_LENGTH) {
                     performSearch();
                     
+                    // Wait 500ms for mobile keyboard to close & results to render
                     setTimeout(() => {
-                        const resultsSection = document.getElementById('resultsSection');
-                        if (resultsSection) {
-                            resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        const searchInput = document.getElementById('searchInput');
+                        if (searchInput) {
+                            // Scroll the search bar to the center of the screen
+                            searchInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
                         }
-                    }, 100);
+                    }, 500);
                 } else {
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                 }
